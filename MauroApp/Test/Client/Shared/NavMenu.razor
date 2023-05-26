@@ -1,0 +1,24 @@
+﻿@using Microsoft.AspNetCore.Components.Authorization
+
+@inject NavigationManager Navigation
+
+<MudPaper Width="250px" Class="py-3" Elevation="0">
+
+<MudNavMenu Bordered="true" Dense="true" Color="Color.Info" Margin="Margin.Dense" Class="pa-2">
+	<MudNavLink Href="/" Icon="@Icons.Material.Filled.Dashboard" Match="NavLinkMatch.All">Dashboard</MudNavLink>
+	@*<MudNavLink Href="/fetchdata" Icon="@Icons.Material.Outlined.Info" Match="NavLinkMatch.Prefix">WeatherData</MudNavLink>*@
+</MudNavMenu>
+
+<MudDivider DividerType="DividerType.Middle" Class="my-3" Style="height:2px;" />
+
+<MudNavMenu Bordered="true" Dense="true" Color="Color.Info" Margin="Margin.Dense" Class="pa-2">
+	<AuthorizeView>
+		<NotAuthorized>
+				<MudNavLink Href="register" Icon="@Icons.Material.Filled.PersonAdd" Match="NavLinkMatch.All">Registrarse</MudNavLink>
+			<MudNavLink Href="login" Icon="@Icons.Material.Filled.Computer" Match="NavLinkMatch.All">Iniciar sesion</MudNavLink>
+		</NotAuthorized>
+	</AuthorizeView>
+</MudNavMenu>
+</MudPaper>
+
+

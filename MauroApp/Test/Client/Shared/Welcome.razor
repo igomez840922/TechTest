@@ -1,0 +1,18 @@
+﻿<div class="alert alert-secondary mt-4">
+    <span class="oi oi-pencil me-2" aria-hidden="true"></span>
+    <strong>@WelcomeInput</strong>
+
+    <span class="text-nowrap">
+        - Por favor logueate
+        <a class="font-weight-bold link-dark" href="login">Login</a>
+        o registra una nueva cuenta en 
+        <a class="font-weight-bold link-dark" href="register">Registro</a>
+    </span>
+
+</div>
+
+@code {
+    // Demonstrates how a parent component can supply parameters
+    [Parameter]
+    public string? WelcomeInput { get; set; }
+}

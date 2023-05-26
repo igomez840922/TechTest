@@ -1,0 +1,73 @@
+﻿@page "/register"
+
+@using ProductosApp.Client.Services;
+@using ProductosApp.Shared.Models;
+
+@inject IAuthService AuthService
+@inject NavigationManager NavigationManager
+<div class="d-flex justify-content-center">
+    <MudText Typo="Typo.h3" Align="Align.Center" Color="Color.Info">Registrarse</MudText>
+</div>
+<br />
+@if (ShowErrors)
+{
+    <div class="alert alert-danger" role="alert">
+        @foreach (var error in Errors!)
+        {
+            <p>@error</p>
+        }
+    </div>
+}
+<MudContainer>
+    <EditForm Model="@RegisterModel" OnValidSubmit="HandleRegistration">
+        <DataAnnotationsValidator />
+        <MudGrid>
+            <MudItem xs="12">
+                <MudCard>
+                    <MudCardContent>
+                        <MudTextField Label="Email"
+                                      @bind-Value="RegisterModel.Email" For="@(() => RegisterModel.Email)" />
+                        <MudTextField InputType="InputType.Password" Label="Contraseña" Class="mt-3"
+                                      @bind-Value="RegisterModel.Password" For="@(() => RegisterModel.Password)" />
+                        <MudTextField InputType="InputType.Password" Label="Contraseña" Class="mt-3"
+                                      @bind-Value="RegisterModel.ConfirmPassword" For="@(() => RegisterModel.ConfirmPassword)" />
+                    </MudCardContent>
+                    <MudCardActions>
+                        <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Success" Class="ml-auto">Registrarse</MudButton>
+                        <MudButton ButtonType="ButtonType.Button" Href="/" Variant="Variant.Filled" Color="Color.Info" Class="ml-4">Volver</MudButton>
+                    </MudCardActions>
+                </MudCard>
+            </MudItem>
+            <MudItem xs="12">
+                <MudText Typo="Typo.body2" Align="Align.Center">
+
+                </MudText>
+            </MudItem>
+        </MudGrid>
+    </EditForm>
+</MudContainer>
+
+@code {
+
+    private RegisterModel RegisterModel = new RegisterModel();
+    private bool ShowErrors;
+    private IEnumerable<string>? Errors;
+
+    private async Task HandleRegistration()
+    {
+        ShowErrors = false;
+
+        var result = await AuthService.Register(RegisterModel);
+
+        if (result.Successful)
+        {
+            NavigationManager.NavigateTo("/login");
+        }
+        else
+        {
+            Errors = result.Errors;
+            ShowErrors = true;
+        }
+    }
+
+}

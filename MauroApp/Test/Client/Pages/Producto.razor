@@ -1,0 +1,114 @@
+﻿@page "/producto"
+
+@page "/producto/{id:int}"
+
+@attribute [Authorize]
+
+@using Microsoft.AspNetCore.Authorization;
+@using ProductosApp.Client.Services;
+
+@inject IProductService ProductService
+@inject ISnackbar Snackbar
+@inject NavigationManager NavigationManager
+
+@if (Id is null)
+{
+    <div class="d-flex justify-content-center">
+        <PageTitle>Crear un nuevo Producto</PageTitle>
+        <h3>Crear un nuevo Producto</h3>
+    </div>
+}
+else
+{
+    <div class="d-flex justify-content-center">
+        <PageTitle>Editar @model.ProductName</PageTitle>
+        <h3>Editar @model.ProductName</h3>
+    </div>
+}
+<MudContainer >
+<EditForm Model="@model" OnValidSubmit="HandleSubmit">
+    <DataAnnotationsValidator />
+    <MudGrid>
+        <MudItem xs="12">
+            <MudCard>
+                <MudCardContent>
+                    <MudTextField Label="Nombre del Producto"
+                                  @bind-Value="model.ProductName" For="@(() => model.ProductName)" />
+                    <MudTextField Label="Descripcion del Producto" Class="mt-3"
+                                  @bind-Value="model.ProductDescription" For="@(() => model.ProductDescription)" />
+                    <MudTextField Label="Precio" HelperText="Ingresa el precio" Class="mt-3"
+                                  @bind-Value="model.ProductPrice" For="@(() => model.ProductPrice)" InputType="InputType.Number" />
+                    <MudTextField Label="Foto" HelperText="Ingresa una foto" Class="mt-3"
+                                  @bind-Value="model.ProductPhoto" For="@(() => model.ProductPhoto)"  />
+                </MudCardContent>
+                <MudCardActions>
+                    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Info" Class="ml-auto">@btnText</MudButton>
+                    <MudButton ButtonType="ButtonType.Button" Href="/" Variant="Variant.Filled" Color="Color.Warning" Class="ml-4">Volver</MudButton>
+                </MudCardActions>
+            </MudCard>
+        </MudItem>
+        <MudItem xs="12">
+            <MudText Typo="Typo.body2" Align="Align.Center">
+                
+            </MudText>
+        </MudItem>
+    </MudGrid>
+</EditForm>
+</MudContainer>
+
+@code {
+    [Parameter]
+    public int? Id { get; set; }
+
+    string btnText = string.Empty;
+    bool success;
+
+    ProductosApp.Shared.Models.Product model = new ProductosApp.Shared.Models.Product();
+
+    protected override void OnInitialized()
+    {
+        btnText = Id == null ? "Guardar Nuevo Producto" : "Actualizar Producto";
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Id is not null)
+        {
+            var result = await ProductService.GetProductById((int)Id);
+            if (result is not null)
+                model = result;
+            else
+                NavigationManager.NavigateTo("/producto");
+        }
+    }
+
+    private void OnValidSubmit(EditContext context)
+    {
+        success = true;
+        StateHasChanged();
+    }
+
+    async Task HandleSubmit()
+    {
+        if (Id is null)
+        {
+            await ProductService.CreateProduct(model);
+            Snackbar.Add("El producto ha sido creado correctamente", Severity.Success);
+            success = true;
+            StateHasChanged();
+        }
+        else
+        {
+            await ProductService.UpdateProduct((int)Id, model);
+            Snackbar.Add("El producto ha sido actualizado correctamente", Severity.Success);
+            success = true;
+            StateHasChanged();
+        }
+    }
+
+    async Task DeleteProduct()
+    {
+        await ProductService.DeleteProduct(model.ProductId);
+        Snackbar.Add("El producto ha sido borrado correctamente", Severity.Success);
+    }
+}

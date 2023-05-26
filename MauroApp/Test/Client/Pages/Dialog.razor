@@ -1,0 +1,35 @@
+﻿@using ProductosApp.Client.Services;
+
+@inject IProductService ProductService
+@inject ISnackbar Snackbar
+
+<MudDialog>
+    <DialogContent>
+        ¿Estas seguro de borrar @Nombre?
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancelar</MudButton>
+        <MudButton Color="Color.Error" OnClick="ConfirmDeleteAsync">Eliminar</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    MudDialogInstance MudDialog { get; set; }
+
+    [Parameter]
+    public int Id { get; set; }
+    [Parameter]
+    public string Nombre { get; set; }
+
+    private void Cancel()
+    {
+        MudDialog.Cancel();
+    }
+    private async Task ConfirmDeleteAsync()
+    {
+        await ProductService.DeleteProduct(Id);
+        Snackbar.Add("El producto ha sido eliminado.", Severity.Success);
+        MudDialog.Close(DialogResult.Ok(true));
+    }
+}

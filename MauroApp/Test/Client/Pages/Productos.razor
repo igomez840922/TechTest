@@ -1,0 +1,113 @@
+﻿@page "/"
+
+@using Microsoft.AspNetCore.Authorization;
+@using ProductosApp.Client.Services;
+@using CurrieTechnologies.Razor.SweetAlert2;
+
+@inject SweetAlertService Swal
+@inject IProductService ProductService
+@inject ISnackbar Snackbar
+@inject IDialogService _dialogService
+@inject NavigationManager NavigationManager
+@inject HttpClient httpClient
+
+@attribute [Authorize]
+
+<PageTitle>DashBoard de Productos</PageTitle>
+
+<div class="d-flex justify-content-between">
+    <MudText Typo="Typo.h5">Productos</MudText>
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" Href="producto">Nuevo Producto</MudButton>
+</div>
+<br />
+<MudTable Items="@products" Dense="@dense" Hover="@hover" Bordered="@bordered" Striped="@striped" Filter="new Func<ProductosApp.Shared.Models.Product,bool>(FilterFunc1)">
+    <ToolBarContent  >
+       <MudText hidden Typo="Typo.h6">Productos</MudText>
+    </ToolBarContent>
+    <HeaderContent>
+        <MudTh><MudText Typo="Typo.h6" >Nombre</MudText></MudTh>
+        <MudTh><MudText Typo="Typo.h6" >Descripcion</MudText></MudTh>
+        <MudTh><MudText Typo="Typo.h6" >Precio</MudText></MudTh>
+        <MudTh><MudText Typo="Typo.h6" >Foto</MudText></MudTh>
+        <MudTh><MudText Typo="Typo.h6" >Acciones</MudText></MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="Name">@context.ProductName</MudTd>
+        <MudTd DataLabel="Description">@context.ProductDescription</MudTd>
+        <MudTd DataLabel="Price">@context.ProductPrice</MudTd>
+        <MudTd DataLabel="Photo"><MudImage Src="@context.ProductPhoto" Width="40" Height="40" Elevation="0" Class="rounded-lg" /></MudTd>
+		<MudTd Class="pa-4 mt-4" DataLabel="Actions">
+			<MudButton Variant="Variant.Filled" Color="Color.Info" DisableElevation="true" OnClick="@(()=>ShowProduct(@context.ProductId))"><i class="oi oi-pencil"></i></MudButton>
+            <MudButton Variant="Variant.Filled" Color="Color.Error" DisableElevation="true" OnClick="@(()=>DeleteProductAsync(@context.ProductId,context.ProductName))"><i class="oi oi-trash"></i></MudButton>
+		</MudTd>
+    </RowTemplate>
+    <PagerContent>
+        <MudTablePager />
+    </PagerContent>
+</MudTable>
+
+@code {
+
+    ProductosApp.Shared.Models.Product product = new ProductosApp.Shared.Models.Product();
+
+    public List<ProductosApp.Shared.Models.Product> products = new List<ProductosApp.Shared.Models.Product>();
+
+    private bool dense = false;
+    private bool hover = true;
+    private bool striped = false;
+    private bool bordered = false;
+    private string searchString1 = "";
+    private Producto selectedItem1 = null;
+    public string? Message { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            products = await ProductService.GetProducts();
+            await base.OnInitializedAsync();
+        }
+        catch (Exception e)
+        {
+            Message = e.Message;
+        }
+    }
+
+    void ShowProduct(int id)
+    {
+        NavigationManager.NavigateTo($"producto/{id}");
+    }
+
+    private async Task DeleteProductAsync(int id, string nombre)
+    {
+        var parameters = new DialogParameters();
+        parameters.Add("Id", id);
+        parameters.Add("Nombre", nombre);
+        var dialog = await _dialogService.ShowAsync<Dialog>("Eliminar Producto", parameters, new DialogOptions { });
+
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            products = await ProductService.GetProducts();
+            //await base.OnInitializedAsync();
+            //StateHasChanged();
+        }
+        NavigationManager.NavigateTo("/", forceLoad: true);
+    }
+    
+    private bool FilterFunc1(ProductosApp.Shared.Models.Product element) => FilterFunc(element, searchString1);
+
+    private bool FilterFunc(ProductosApp.Shared.Models.Product element, string searchString)
+    {
+        if (string.IsNullOrWhiteSpace(searchString))
+            return true;
+        if (element.ProductName.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        return false;
+    }
+    
+    
+}
+
+
