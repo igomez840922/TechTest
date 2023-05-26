@@ -5,7 +5,11 @@
 <MudPaper Width="250px" Class="py-3" Elevation="0">
 
 <MudNavMenu Bordered="true" Dense="true" Color="Color.Info" Margin="Margin.Dense" Class="pa-2">
+	<AuthorizeView>
+		<Authorized>
 	<MudNavLink Href="/" Icon="@Icons.Material.Filled.Dashboard" Match="NavLinkMatch.All">Dashboard</MudNavLink>
+			</Authorized>
+	</AuthorizeView>
 	@*<MudNavLink Href="/fetchdata" Icon="@Icons.Material.Outlined.Info" Match="NavLinkMatch.Prefix">WeatherData</MudNavLink>*@
 </MudNavMenu>
 

@@ -26,7 +26,7 @@ namespace ProductosApp.Client.Services
 
         public async Task<RegisterResult> Register(RegisterModel registerModel)
         {
-            var result = await _httpClient.PostAsJsonAsync("api/accounts", registerModel);
+            var result = await _httpClient.PostAsJsonAsync("api/Accounts", registerModel);
             if (result.IsSuccessStatusCode)
             {
                 return new RegisterResult { Successful = true, Errors = null };
