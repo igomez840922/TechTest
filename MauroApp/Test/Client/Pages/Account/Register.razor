@@ -59,15 +59,8 @@
 
         var result = await AuthService.Register(RegisterModel);
 
-        if (result.Successful)
-        {
             NavigationManager.NavigateTo("/login");
-        }
-        else
-        {
-            Errors = result.Errors;
-            ShowErrors = true;
-        }
+    
     }
 
 }
