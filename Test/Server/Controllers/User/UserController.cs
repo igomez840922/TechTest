@@ -1,11 +1,14 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Test.Server.Repositories;
 using Test.Shared.DTOS;
+using Type = Test.Shared.Models.Type;
 
 namespace Test.Server.Controllers
 {
-    [Route("api/[controller]")]
+    [Authorize]
     [ApiController]
+    [Route("api/[controller]")]
     public class UserController : ControllerBase
     {
         private readonly IUserRepository _userRepository;
@@ -15,10 +18,11 @@ namespace Test.Server.Controllers
             _userRepository = userRepository;
         }
 
+        [AllowAnonymous]
         [HttpGet("usertypes")]
-        public async Task<ActionResult<List<Shared.Models.Type>>> GetUserTypesAsync()
+        public async Task<ActionResult<List<Type>>> GetUserTypesAsync()
         {
-            List<Shared.Models.Type> userTypes = new List<Shared.Models.Type>();
+            List<Type> userTypes = new List<Type>();
 
             try
             {
@@ -32,18 +36,55 @@ namespace Test.Server.Controllers
             return StatusCode(StatusCodes.Status200OK, userTypes);
         }
 
+        [AllowAnonymous]
         [HttpPost("register")]
         public async Task<ActionResult<UserDTO>> RegisterUserAsync(RegisterUserDTO registerUserDTO)
         {
-            UserDTO existingUser = await _userRepository.GetUserByEmailAsync(registerUserDTO.Email);
-            
-            if(existingUser.ID != 0)
+            try
             {
-                return StatusCode(StatusCodes.Status409Conflict, new UserDTO());
+                UserDTO createdUser = await _userRepository.RegisterUserAsync(registerUserDTO);
+                if(createdUser.ID == 0)
+                {
+                    return StatusCode(StatusCodes.Status409Conflict, new UserDTO());
+                }
+
+            }
+            catch (Exception ex)
+            {
+
             }
 
-            UserDTO createdUser = await _userRepository.RegisterUserAsync(registerUserDTO);
-            return StatusCode(StatusCodes.Status201Created, createdUser);
+            return StatusCode(StatusCodes.Status201Created, await _userRepository.LoginUserAsync
+                (
+                    new LoginUserDTO 
+                    { 
+                        Email = registerUserDTO.Email, 
+                        Password = registerUserDTO.Password
+                    }
+                )
+            );
+        }
+
+        [AllowAnonymous]
+        [HttpPost("login")]
+        public async Task<ActionResult<UserDTO>> LoginUserAsync(LoginUserDTO loginUserDTO)
+        {
+            UserDTO user = new UserDTO();
+
+            try
+            {
+                user = await _userRepository.LoginUserAsync(loginUserDTO);
+                if(user.ID == 0)
+                {
+                    return StatusCode(StatusCodes.Status401Unauthorized, user);
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+            return StatusCode(StatusCodes.Status200OK, user);
         }
     }
 }

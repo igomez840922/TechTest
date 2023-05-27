@@ -5,13 +5,11 @@
 <MudSnackbarProvider />
 
 <MudLayout>
-    <MudAppBar>
-        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
-        Registro de Productos
+    <MudAppBar Color="Color.Primary" Fixed="false">
+        <MudText Typo="Typo.subtitle1">Product Registry</MudText>
+        <MudSpacer />
+        <MudIconButton Icon="@Icons.Material.Filled.Person" Color="Color.Inherit" />
     </MudAppBar>
-    <MudDrawer ClipMode="DrawerClipMode.Always" @bind-Open="@_drawerOpen">
-        <NavMenu/>
-    </MudDrawer>
     <MudMainContent>
         <MudContainer Style="margin-block: 2rem" MaxWidth="MaxWidth.Large">
             @Body
@@ -20,10 +18,5 @@
 </MudLayout>
 
 @code {
-    bool _drawerOpen = false;
-
-    void DrawerToggle()
-    {
-        _drawerOpen = !_drawerOpen;
-    }
+    
 }
