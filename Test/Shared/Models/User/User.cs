@@ -12,7 +12,7 @@ namespace Test.Shared.Models
         [Required]
         public long Type { get; set; }
         [MaxLength(64)]
-        public int Username { get; set; }
+        public string Username { get; set; }
         [MaxLength(320)]
         public string Email { get; set; }
         public string Password { get; set; }

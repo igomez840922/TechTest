@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using System;
+using Test.Server.Repositories;
 using Test.Shared.Contexts;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,6 +10,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<ProductRegistryContext>(
     options => options.UseSqlServer(builder.Configuration.GetSection("ConnectionString").Value, config => config.MigrationsAssembly("Test.Server"))
 );
+
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
