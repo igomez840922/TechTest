@@ -1,0 +1,27 @@
+﻿@using Test.Client.Services;
+@using Test.Shared.DTOS;
+@using Test.Shared.Models;
+
+@inject ILocalStorageService LocalStorageService;
+
+@if(user?.Type == (int)UserType)
+{
+    @ChildContent    
+}
+
+
+@code {
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+
+    [Parameter]
+    [EditorRequired]
+    public UserType UserType { get; set; }
+
+    private UserDTO? user = new UserDTO();
+
+    protected override async Task OnInitializedAsync()
+    {
+        user = await LocalStorageService.GetItem<UserDTO>("user");
+    }
+}

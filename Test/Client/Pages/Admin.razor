@@ -1,0 +1,13 @@
+﻿@page "/Admin"
+
+@using Test.Client.Pages.Auth
+@using Test.Shared.Models;
+
+<PageTitle>Panel de administración</PageTitle>
+
+<RedirectIfNotAuthorized UserType="UserType.Admin"/>
+<MudText Typo="Typo.h2">Panel de administración</MudText>
+
+@code {
+
+}

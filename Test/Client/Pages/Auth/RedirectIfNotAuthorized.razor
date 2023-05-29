@@ -1,0 +1,27 @@
+﻿@using Test.Client.Services;
+@using Test.Shared.DTOS;
+@using Test.Shared.Models;
+
+@inject ILocalStorageService LocalStorageService;
+@inject NavigationManager NavigationManager;
+@inject ISnackbar SnackBar;
+
+
+@code {
+    [Parameter]
+    [EditorRequired]
+    public UserType UserType { get; set; }
+
+    private UserDTO? user = new UserDTO();
+
+    protected override async Task OnInitializedAsync()
+    {
+        user = await LocalStorageService.GetItem<UserDTO>("user");
+
+        if(user?.Type != (int)UserType)
+        {
+            NavigationManager.NavigateTo("/Products");
+            SnackBar.Add("No estas autorizado en esta dirección.", Severity.Error);
+        }
+    }
+}

@@ -1,5 +1,6 @@
 ﻿@using Test.Client.Pages.Auth
 @using Test.Client.Services;
+@using Test.Shared.Models;
 @inherits LayoutComponentBase
 
 @inject ILocalStorageService LocalStorageService;
@@ -26,11 +27,13 @@
                         Productos
                     </MudMenuItem>
                 </MudLink>
-                <MudLink Color="Color.Default" Underline="Underline.None" Href="Admin">
-                    <MudMenuItem Icon="@Icons.Material.Filled.AdminPanelSettings">
-                        Panel de administración
-                    </MudMenuItem>
-                </MudLink>
+                <ShowIfAuthorized UserType="@UserType.Admin">
+                    <MudLink Color="Color.Default" Underline="Underline.None" Href="Admin">
+                        <MudMenuItem Icon="@Icons.Material.Filled.AdminPanelSettings">
+                            Panel de administración
+                        </MudMenuItem>
+                    </MudLink>
+                </ShowIfAuthorized>
                 <MudMenuItem OnClick="OnLogoutAsync" IconColor="Color.Error" Icon="@Icons.Material.Filled.Logout">
                     Cerrar sesión
                 </MudMenuItem>
