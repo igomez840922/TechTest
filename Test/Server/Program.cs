@@ -30,7 +30,7 @@ builder.Services.AddAuthentication(options => {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
 }).AddJwtBearer(jwt => {
-    var key = Encoding.ASCII.GetBytes(jwtConfig.Secret);
+    var key = Encoding.UTF8.GetBytes(jwtConfig.Secret);
     jwt.RequireHttpsMetadata = false;
     jwt.SaveToken = true;
     jwt.TokenValidationParameters = new TokenValidationParameters
@@ -74,9 +74,8 @@ app.UseHttpsRedirection();
 app.UseBlazorFrameworkFiles();
 app.UseStaticFiles();
 
-app.UseRouting();
-
 app.UseAuthentication();
+app.UseRouting();
 app.UseAuthorization();
 
 app.MapRazorPages();

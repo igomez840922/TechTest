@@ -1,27 +1,47 @@
-﻿@using Test.Shared.DTOS;
+﻿@using System.Net;
+@using Test.Client.Services;
+@using Test.Shared.DTOS;
+
+@inject HttpClient Http;
+@inject ILocalStorageService LocalStorageService;
+@inject ISnackbar SnackBar;
+@inject NavigationManager NavigationManager;
+@inject IRefreshService RefreshService;
+
 <MudCard>
     <MudCardHeader>
         <CardHeaderContent>
-            <MudText Typo="Typo.body1">@model.Name</MudText>
-            <MudText Typo="Typo.body2">@model.Model</MudText>
+            <div style="overflow-wrap: break-word!important; width: 100%!important">
+                <MudText Typo="Typo.body1">@model.Name</MudText>
+                <MudText Typo="Typo.body2">@model.Model</MudText>
+            </div>
         </CardHeaderContent>
         <CardHeaderActions>
             <MudMenu AnchorOrigin="Origin.BottomLeft" Icon="@Icons.Material.Filled.Settings" Color="Color.Inherit" IconColor="Color.Inherit">
                 <MudMenuItem OnClick="OnEditButton" Icon="@Icons.Material.Filled.Edit">
                     Editar
                 </MudMenuItem>
-                <MudMenuItem IconColor="Color.Error" Icon="@Icons.Material.Filled.Delete">
+                <MudMenuItem OnClick="OnDeleteButton" IconColor="Color.Error" Icon="@Icons.Material.Filled.Delete">
                     Eliminar
                 </MudMenuItem>
         </MudMenu>
         </CardHeaderActions>
     </MudCardHeader>
     <MudCardMedia Image="@($"data:{model.MimeType};base64,{model.ImageData}")" Height="250" />
-    <MudCardContent>
+    <MudCardContent Style="overflow-wrap: break-word!important; width: 100%!important">
         <MudText Typo="Typo.body2">@model.Description</MudText>
         <MudText Typo="Typo.body2">@($"${model.Price}")</MudText>
     </MudCardContent>
 </MudCard>
+
+<MudMessageBox @ref="mbox" Title="Peligro" CancelText="Cancelar">
+    <MessageContent>
+        ¡No podras deshacer los cambios!
+    </MessageContent>
+    <YesButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.DeleteForever">Borrar!</MudButton>
+    </YesButton>
+</MudMessageBox>
 
 <EditProductModal model="model" isVisible="isEditModalOpen"/>
 
@@ -30,10 +50,46 @@
     [EditorRequired]
     public ProductDTO model { get; set; }
 
+    MudMessageBox mbox { get; set; }
+
     bool isEditModalOpen;
 
     void OnEditButton()
     {
         isEditModalOpen = true;
+    }
+
+    private async void OnDeleteButton()
+    {
+        bool? result = await mbox.Show();
+        if(result.HasValue && result.Value)
+        {
+            OnDelete();
+        }
+    }
+
+    async void OnDelete()
+    {
+        HttpResponseMessage response = await Http.PostAsJsonAsync<ProductDTO>("api/product/delete", model);
+
+        if (response.StatusCode == HttpStatusCode.OK)
+        {
+            RefreshService.CallRequestRefresh();
+            SnackBar.Add("¡Se ha eliminado el producto!", Severity.Success);
+        }
+        else if (response.StatusCode == HttpStatusCode.Unauthorized)
+        {
+            SnackBar.Add("La sesión ha caducado. Por favor inicie sesión nuevamente.", Severity.Warning);
+            await LocalStorageService.RemoveItem("user");
+            NavigationManager.NavigateTo("Auth/Login");
+        }
+        else if (response.StatusCode == HttpStatusCode.NotFound)
+        {
+            SnackBar.Add("No se encuentra el producto que desea borrar.", Severity.Warning);
+        }
+        else
+        {
+            SnackBar.Add("Error del sistema.", Severity.Error);
+        }
     }
 }

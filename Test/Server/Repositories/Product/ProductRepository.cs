@@ -42,6 +42,20 @@ namespace Test.Server.Repositories
             return newProduct.ProductAsDTO();
         }
 
+        public async Task<bool> DeleteProductAsync(ProductDTO deleteProductDTO)
+        {
+            Product? existingProduct = _context.Product.Where(p => p.UserID == deleteProductDTO.UserID && p.ID == deleteProductDTO.ID).FirstOrDefault();
+
+            if(existingProduct == null)
+            {
+                return false;
+            }
+
+            await Task.FromResult(_context.Product.Remove(existingProduct));
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
         public async Task<ProductDTO> EditProductAsync(ProductDTO product)
         {
             Product? existingProduct = await _context.Product.Where(p => p.UserID == product.UserID && p.ID == product.ID).FirstOrDefaultAsync();

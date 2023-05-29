@@ -5,7 +5,7 @@ using Test.Shared.DTOS;
 
 namespace Test.Server.Controllers.Product
 {
-
+    //[Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class ProductController : ControllerBase
@@ -71,6 +71,26 @@ namespace Test.Server.Controllers.Product
             }
 
             return StatusCode(StatusCodes.Status200OK, editedProduct);
+        }
+
+        [HttpPost("delete")]
+        public async Task<ActionResult> DeleteProductAsync(ProductDTO product)
+        {
+            try
+            {
+                bool deleted = await _productRepository.DeleteProductAsync(product);
+
+                if (!deleted)
+                {
+                    return StatusCode(StatusCodes.Status404NotFound);
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+            return StatusCode(StatusCodes.Status200OK);
         }
     }
 }

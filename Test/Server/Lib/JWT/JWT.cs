@@ -21,7 +21,7 @@ namespace Test.Server.Lib.JWT
         {
             JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
             JWTConfig jwtConfig = configuration.GetSection(nameof(JWTConfig)).Get<JWTConfig>();
-            byte[] tokenKey = Encoding.ASCII.GetBytes(jwtConfig.Secret);
+            byte[] tokenKey = Encoding.UTF8.GetBytes(jwtConfig.Secret);
 
             SecurityTokenDescriptor tokenDescriptor = new SecurityTokenDescriptor()
             {
@@ -44,7 +44,7 @@ namespace Test.Server.Lib.JWT
                 return string.Empty;
 
             JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
-            byte[] key = Encoding.ASCII.GetBytes(configuration.GetSection(nameof(JWTConfig)).Get<JWTConfig>().Secret);
+            byte[] key = Encoding.UTF8.GetBytes(configuration.GetSection(nameof(JWTConfig)).Get<JWTConfig>().Secret);
             try
             {
                 tokenHandler.ValidateToken(token, new TokenValidationParameters

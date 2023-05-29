@@ -59,8 +59,9 @@ else
     bool isLoading;
     bool productsLoading = true;
 
-    private void Refresh()
+    private async void Refresh()
     {
+        await GetProductsAsync();
         StateHasChanged();
     }
 
@@ -80,14 +81,21 @@ else
 
         model.UserID = user.ID;
 
+        await GetProductsAsync();
+
+        productsLoading = false;
+    }
+
+    private async Task GetProductsAsync()
+    {
         GetUserProductsDTO getModel = new GetUserProductsDTO() { UserID = user.ID };
         HttpResponseMessage response = await Http.PostAsJsonAsync<GetUserProductsDTO>("api/product/products", getModel);
 
-        if(response.StatusCode == HttpStatusCode.OK)
+        if (response.StatusCode == HttpStatusCode.OK)
         {
             List<ProductDTO>? responseContent = await response.Content.ReadFromJsonAsync<List<ProductDTO>>();
 
-            if(responseContent != null)
+            if (responseContent != null)
             {
                 products = responseContent;
             }
@@ -102,8 +110,6 @@ else
         {
             SnackBar.Add("Error del sistema.", Severity.Error);
         }
-
-        productsLoading = false;
     }
 
     private async void OnFileSelectedChange(IBrowserFile file)

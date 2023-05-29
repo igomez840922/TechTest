@@ -7,5 +7,6 @@ namespace Test.Server.Repositories
         Task<ProductDTO> AddProductAsync(AddProductDTO addProductDTO);
         Task<List<ProductDTO>> GetAllProductsAsync(GetUserProductsDTO getUserProductsDTO);
         Task<ProductDTO> EditProductAsync(ProductDTO editProductDTO);
+        Task<bool> DeleteProductAsync(ProductDTO deleteProductDTO);
     }
 }
