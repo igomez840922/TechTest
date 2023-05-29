@@ -1,9 +1,37 @@
 ﻿@page "/"
+@using Test.Client.Pages.Auth
+@using Test.Client.Services;
 
-<PageTitle>Index</PageTitle>
+@inject NavigationManager NavigationManager;
+@inject ILocalStorageService LocalStorageService;
 
-<h1>Hello, world!</h1>
+<PageTitle>Product Registry</PageTitle>
 
-Welcome to your new app.
-
-<SurveyPrompt Title="How is Blazor working for you?" />
+<MudGrid>
+    <MudItem xs="12" sm="6">
+        <MudText Typo="Typo.h2">Product Registry</MudText>
+        <MudText Typo="Typo.subtitle1">¡Organiza tus productos fácilmente! Guarda todos tus artículos con nombre, precio, modelo, imagen y descripción. ¡Mantén tu inventario al alcance de tu mano con solo un clic!</MudText>
+        <div class="mt-8">
+            <NotAuthenticated>
+                <MudLink Href="Auth/Register">
+                    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">Registrate</MudButton>
+                </MudLink>
+                <MudLink Href="Auth/Login">
+                    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Outlined" Color="Color.Secondary" Class="ml-auto">Inicia sesión</MudButton>
+                </MudLink>
+            </NotAuthenticated>
+            <Authenticated>
+                <MudLink Href="Products">
+                    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">Productos</MudButton>
+                </MudLink>
+            </Authenticated>
+        </div>
+    </MudItem>
+    <MudItem xs="12" sm="6">
+    </MudItem>
+    <MudItem xs="12" sm="6">
+    </MudItem>
+    <MudItem xs="12" sm="6">
+        <MudImage Src="hero.svg" Width="512" Fluid="true"/>
+    </MudItem>
+</MudGrid>

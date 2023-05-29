@@ -1,0 +1,21 @@
+﻿@using Test.Client.Services;
+@using Test.Shared.DTOS;
+@inject ILocalStorageService LocalStorageService;
+
+@if (!isAuthenticated)
+{
+    @ChildContent
+}
+
+@code {
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+
+    bool isAuthenticated;
+
+    protected override async Task OnInitializedAsync()
+    {
+        UserDTO? user = await LocalStorageService.GetItem<UserDTO>("user");
+        isAuthenticated = user != null && user.ID != 0;
+    }
+}

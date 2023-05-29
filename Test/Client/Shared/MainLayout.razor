@@ -1,17 +1,71 @@
-﻿@inherits LayoutComponentBase
+﻿@using Test.Client.Pages.Auth
+@using Test.Client.Services;
+@using Test.Shared.Models;
+@inherits LayoutComponentBase
 
-<div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
+@inject ILocalStorageService LocalStorageService;
+@inject ISnackbar SnackBar;
+@inject NavigationManager NavigationManager;
 
-    <main>
-        <div class="top-row px-4">
-            <a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>
-        </div>
+<MudThemeProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
 
-        <article class="content px-4">
+<MudLayout>
+    <MudAppBar Color="Color.Primary" Fixed="false">
+        <MudLink Href="/" Style="color: white!important" Underline="Underline.None" Typo="Typo.subtitle1">Product Registry</MudLink>
+        <MudSpacer />
+        <MudMenu AnchorOrigin="Origin.BottomCenter" Icon="@Icons.Material.Filled.Person" Color="Color.Inherit" IconColor="Color.Inherit">
+            <Authenticated>
+                <MudLink Color="Color.Default" Underline="Underline.None" Href="/">
+                    <MudMenuItem Icon="@Icons.Material.Filled.Home">
+                        Inicio
+                    </MudMenuItem>
+                </MudLink>
+                <MudLink Color="Color.Default" Underline="Underline.None" Href="Products">
+                    <MudMenuItem Icon="@Icons.Material.Filled.ViewList">
+                        Productos
+                    </MudMenuItem>
+                </MudLink>
+                <ShowIfAuthorized UserType="@UserType.Admin">
+                    <MudLink Color="Color.Default" Underline="Underline.None" Href="Admin">
+                        <MudMenuItem Icon="@Icons.Material.Filled.AdminPanelSettings">
+                            Panel de administración
+                        </MudMenuItem>
+                    </MudLink>
+                </ShowIfAuthorized>
+                <MudMenuItem OnClick="OnLogoutAsync" IconColor="Color.Error" Icon="@Icons.Material.Filled.Logout">
+                    Cerrar sesión
+                </MudMenuItem>
+            </Authenticated>
+            <NotAuthenticated>  
+                <MudLink Color="Color.Default" Underline="Underline.None" Href="Auth/Register">
+                    <MudMenuItem Icon="@Icons.Material.Filled.AppRegistration">
+                        Registrate
+                    </MudMenuItem>
+                </MudLink>
+                <MudLink Color="Color.Default" Underline="Underline.None" Href="Auth/Login">
+                    <MudMenuItem Icon="@Icons.Material.Filled.Login">
+                        Inicia sesión
+                    </MudMenuItem>
+                </MudLink>
+            </NotAuthenticated>
+        </MudMenu>
+    </MudAppBar>
+    <MudMainContent>
+        <MudContainer Style="margin-block: 2rem" MaxWidth="MaxWidth.Large">
             @Body
-        </article>
-    </main>
-</div>
+        </MudContainer>
+    </MudMainContent>
+</MudLayout>
+
+@code {
+    private MudTheme Theme = new MudTheme();
+
+    private async Task OnLogoutAsync()
+    {
+        await LocalStorageService.RemoveItem("user");
+        NavigationManager.NavigateTo("/Auth/Login");
+        SnackBar.Add("Has cerrado sesión.", Severity.Warning);
+    }
+}
