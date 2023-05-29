@@ -29,7 +29,7 @@ namespace Test.Server.Lib.JWT
                     new Claim(ID, user.ID.ToString()),
                     new Claim(ClaimTypes.Role, user.Type.ToString()),
                 }),
-                Expires = DateTime.UtcNow.AddDays(jwtConfig.Duration),
+                Expires = DateTime.Now.AddDays(jwtConfig.Duration),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(tokenKey), SecurityAlgorithms.HmacSha256Signature)
             };
 

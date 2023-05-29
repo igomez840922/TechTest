@@ -1,0 +1,39 @@
+﻿@using Test.Shared.DTOS;
+<MudCard>
+    <MudCardHeader>
+        <CardHeaderContent>
+            <MudText Typo="Typo.body1">@model.Name</MudText>
+            <MudText Typo="Typo.body2">@model.Model</MudText>
+        </CardHeaderContent>
+        <CardHeaderActions>
+            <MudMenu AnchorOrigin="Origin.BottomLeft" Icon="@Icons.Material.Filled.Settings" Color="Color.Inherit" IconColor="Color.Inherit">
+                <MudMenuItem OnClick="OnEditButton" Icon="@Icons.Material.Filled.Edit">
+                    Editar
+                </MudMenuItem>
+                <MudMenuItem IconColor="Color.Error" Icon="@Icons.Material.Filled.Delete">
+                    Eliminar
+                </MudMenuItem>
+        </MudMenu>
+        </CardHeaderActions>
+    </MudCardHeader>
+    <MudCardMedia Image="@($"data:{model.MimeType};base64,{model.ImageData}")" Height="250" />
+    <MudCardContent>
+        <MudText Typo="Typo.body2">@model.Description</MudText>
+        <MudText Typo="Typo.body2">@($"${model.Price}")</MudText>
+    </MudCardContent>
+</MudCard>
+
+<EditProductModal model="model" isVisible="isEditModalOpen"/>
+
+    @code {
+    [Parameter]
+    [EditorRequired]
+    public ProductDTO model { get; set; }
+
+    bool isEditModalOpen;
+
+    void OnEditButton()
+    {
+        isEditModalOpen = true;
+    }
+}

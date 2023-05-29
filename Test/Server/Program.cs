@@ -23,6 +23,7 @@ builder.Services.AddDbContext<ProductRegistryContext>(
 //Repositorios y librerias.
 builder.Services.AddScoped<IJWT, JWT>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IProductRepository, ProductRepository>();
 
 //Authentication with JWT
 builder.Services.AddAuthentication(options => {

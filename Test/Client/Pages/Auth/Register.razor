@@ -72,7 +72,6 @@
     RegisterUserDTO model = new RegisterUserDTO();
     List<Test.Shared.Models.Type>? userTypes = new List<Test.Shared.Models.Type>();
 
-    bool success;
     bool isLoading;
 
     protected override async Task OnInitializedAsync()
@@ -82,7 +81,6 @@
      
     private async void OnValidSubmit(EditContext context)
     {
-        success = true;
         await RegisterUserAsync();
         StateHasChanged();
     }

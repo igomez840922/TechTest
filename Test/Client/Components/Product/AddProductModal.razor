@@ -1,0 +1,83 @@
+﻿@using System.Globalization;
+@using Test.Shared.DTOS;
+<MudOverlay @bind-Visible="isVisible" DarkBackground="true" LockScroll="true">
+    <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
+        <DataAnnotationsValidator />
+        <MudGrid>
+            <MudItem xs="12" sm="7">
+                <MudCard>
+                    <MudCardContent>
+                        <MudText Typo="Typo.subtitle1" Class="mb-4">Añadir producto</MudText>
+                        <MudTextField Label="Nombre del producto" HelperText="Maximo 255 caracteres."
+                                      @bind-Value="model.Name" For="@(() => model.Name)" />
+                        <MudTextField Label="Modelo del producto" HelperText="Maximo 255 caracteres."
+                                      @bind-Value="model.Model" For="@(() => model.Model)" />
+                        <MudNumericField @bind-Value="model.Price" Label="Precio" Variant="Variant.Text" Step=".2M"
+                                         HelperText="Precio del producto" For="@(() => model.Price)" Culture="@_pa" />
+                        <MudTextField T="string" Label="Descripción" Variant="Variant.Text" Lines="3"
+                                      @bind-Value="model.Description" HelperText="Descripción del producto" MaxLength="1024"
+                                      For="@(() => model.Description)" />
+                        <MudFileUpload id="product-add-image" FilesChanged="OnFileSelectedChange" T="IBrowserFile" Accept=".png, .jpeg" MaximumFileCount="1">
+                            <ButtonTemplate Context="button">
+                                <MudButton HtmlTag="label"
+                                           Variant="Variant.Filled"
+                                           Color="Color.Success"
+                                           StartIcon="@Icons.Material.Filled.CloudUpload"
+                                           for="product-add-image">
+                                    Seleccionar imagen
+                                </MudButton>
+                            </ButtonTemplate>
+                        </MudFileUpload>
+                    </MudCardContent>
+                    <MudCardActions>
+                        <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary">
+                            @if (isLoading)
+                            {
+                                <MudProgressCircular Color="Color.Default" Indeterminate="true" Size="Size.Small" />
+                            }
+                            else
+                            {
+                                <MudText>Añadir producto</MudText>
+                            }
+                        </MudButton>
+                        <MudSpacer />
+                        @if (!isLoading)
+                        {
+                            <MudButton Variant="Variant.Outlined" Color="Color.Error" OnClick="OnAddProductCancel">Cancelar</MudButton>
+                        }
+                    </MudCardActions>
+                </MudCard>
+            </MudItem>
+            <MudItem xs="12" sm="5">
+                <MudPaper Class="pa-4 mud-height-full">
+                    <MudText Typo="Typo.subtitle2">Resumen de Validaciones</MudText>
+                    <MudText Color="@Color.Error">
+                        <ValidationSummary />
+                    </MudText>
+                </MudPaper>
+            </MudItem>
+        </MudGrid>
+    </EditForm>
+</MudOverlay>
+
+@code {
+    [Parameter]
+    public AddProductDTO model { get; set; }
+    [Parameter]
+    [EditorRequired]
+    public bool isLoading { get; set; }
+    [Parameter]
+    [EditorRequired]
+    public bool isVisible { get; set; }
+    [Parameter]
+    [EditorRequired]
+    public EventCallback<MouseEventArgs> OnAddProductCancel { get; set; }
+    [Parameter]
+    [EditorRequired]
+    public EventCallback<EditContext> OnValidSubmit { get; set; }
+    [Parameter]
+    [EditorRequired]
+    public EventCallback<IBrowserFile> OnFileSelectedChange { get; set; }
+
+    public CultureInfo _pa = CultureInfo.GetCultureInfo("es-PA");
+}

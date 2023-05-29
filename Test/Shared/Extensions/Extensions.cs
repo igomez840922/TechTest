@@ -15,5 +15,20 @@ namespace Test.Shared.Extensions
                 Type = user.Type
             };
         }
+
+        public static ProductDTO ProductAsDTO(this Product product)
+        {
+            return new ProductDTO
+            {
+                ID = product.ID,
+                Description = product.Description,
+                ImageData = product.ImageData,
+                MimeType = product.MimeType,
+                Model = product.Model,
+                Name = product.Name,
+                Price = product.Price,
+                UserID = product.UserID
+            };
+        }
     }
 }

@@ -1,12 +1,178 @@
 ﻿@page "/Products"
 
+@using System.Net;
+@using System.Globalization;
+@using Test.Client.Components.Product
 @using Test.Client.Pages.Auth
+@using Test.Client.Services;
+@using Test.Shared.DTOS;
+
+@inject HttpClient Http;
+@inject ILocalStorageService LocalStorageService;
+@inject ISnackbar SnackBar;
+@inject NavigationManager NavigationManager;
+@inject IRefreshService RefreshService;
 
 <PageTitle>Productos</PageTitle>
 
 <RedirectIfNotAuthenticated/>
-<MudText Typo="Typo.h2">Productos</MudText>
+<MudText Class="mb-4" Typo="Typo.h2">Productos</MudText>
+<MudPaper Class="mud-theme-primary">
+    <MudToolBar>
+        <MudSpacer />
+        <MudTooltip Text="Agregar productos">
+            <MudIconButton Color="Color.Inherit" Icon="@Icons.Material.Filled.Add" OnClick="OnOpenAddProductModal"/>
+        </MudTooltip>
+        <MudTooltip Text="Exportar lista de productos">
+            <MudIconButton Color="Color.Inherit" Icon="@Icons.Material.Filled.ImportExport" />
+        </MudTooltip>
+    </MudToolBar>
+</MudPaper>
+
+@if (productsLoading)
+{
+    <MudProgressCircular Class="mx-auto mt-4" Color="Color.Default" Indeterminate="true" Size="Size.Small" />
+}
+else
+{
+    <MudGrid Class="mt-4">
+        @foreach (ProductDTO product in products)
+        {
+            <MudItem xs="12" sm="3">
+                <Product model="product" />
+            </MudItem>
+        }
+    </MudGrid>
+}
+
+<AddProductModal isLoading="isLoading" isVisible="isVisible" model="model"  OnAddProductCancel="OnAddProductCancel" OnFileSelectedChange="OnFileSelectedChange" OnValidSubmit="OnValidSubmit"/>
+
 
 @code {
 
+    AddProductDTO model = new AddProductDTO();
+    List<ProductDTO> products = new List<ProductDTO>();
+    UserDTO? user = new UserDTO();
+    IBrowserFile file;
+
+    bool isVisible;
+    bool isLoading;
+    bool productsLoading = true;
+
+    private void Refresh()
+    {
+        StateHasChanged();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        RefreshService.RefreshRequested += Refresh;
+
+        user = await LocalStorageService.GetItem<UserDTO>("user");
+
+        if(user == null || user.ID == 0)
+        {
+            await LocalStorageService.RemoveItem("user");
+            SnackBar.Add("Debes iniciar sesión.", Severity.Warning);
+            NavigationManager.NavigateTo("Auth/Login");
+            return;
+        }
+
+        model.UserID = user.ID;
+
+        GetUserProductsDTO getModel = new GetUserProductsDTO() { UserID = user.ID };
+        HttpResponseMessage response = await Http.PostAsJsonAsync<GetUserProductsDTO>("api/product/products", getModel);
+
+        if(response.StatusCode == HttpStatusCode.OK)
+        {
+            List<ProductDTO>? responseContent = await response.Content.ReadFromJsonAsync<List<ProductDTO>>();
+
+            if(responseContent != null)
+            {
+                products = responseContent;
+            }
+        }
+        else if (response.StatusCode == HttpStatusCode.Unauthorized)
+        {
+            SnackBar.Add("La sesión ha caducado. Por favor inicie sesión nuevamente.", Severity.Warning);
+            await LocalStorageService.RemoveItem("user");
+            NavigationManager.NavigateTo("Auth/Login");
+        }
+        else
+        {
+            SnackBar.Add("Error del sistema.", Severity.Error);
+        }
+
+        productsLoading = false;
+    }
+
+    private async void OnFileSelectedChange(IBrowserFile file)
+    {
+        long maxImageSize = 2000000;
+        this.file = file;
+
+        if(file != null)
+        {
+            var buffer = new byte[file.Size];
+
+            if (file.Size > maxImageSize)
+            {
+                SnackBar.Add("El archivo es demasiado pesado. El tamaño maximo es 2mb.", Severity.Success);
+                return;
+            }
+
+            await file.OpenReadStream(maxImageSize).ReadAsync(buffer);
+
+            model.ImageData = Convert.ToBase64String(buffer);
+            model.MimeType = file.ContentType;
+        }
+    }
+
+    private void OnOpenAddProductModal()
+    {
+        isVisible = true;
+    }
+
+    private void OnAddProductCancel()
+    {
+        isVisible = false;
+    }
+
+    private async void OnValidSubmit(EditContext context)
+    {
+        await AddProductAsync();
+        StateHasChanged();
+    }
+
+    private async Task AddProductAsync()
+    {
+        isLoading = true;
+        HttpResponseMessage response = await Http.PostAsJsonAsync<AddProductDTO>("api/product/add", model);
+
+        if (response.StatusCode == HttpStatusCode.Created)
+        {
+            ProductDTO? responseContent = await response.Content.ReadFromJsonAsync<ProductDTO>();
+            if(responseContent != null)
+            {
+                isVisible = false;
+                products.Add(responseContent);
+                SnackBar.Add("¡Se ha agregado el producto satisfactoriamente!", Severity.Success);
+            }
+            else
+            {
+                SnackBar.Add("Error del sistema.", Severity.Error);
+            }
+        }
+        else if (response.StatusCode == HttpStatusCode.Unauthorized)
+        {
+            SnackBar.Add("La sesión ha caducado. Por favor inicie sesión nuevamente.", Severity.Warning);
+            await LocalStorageService.RemoveItem("user");
+            NavigationManager.NavigateTo("Auth/Login");
+        }
+        else
+        {
+            SnackBar.Add("Error del sistema.", Severity.Error);
+        }
+        isLoading = false;
+    }
 }

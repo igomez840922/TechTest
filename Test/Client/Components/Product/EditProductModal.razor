@@ -1,0 +1,150 @@
+﻿@using System.Globalization;
+@using System.Net;
+@using Test.Client.Services;
+@using Test.Shared.DTOS;
+
+@inject HttpClient Http;
+@inject ILocalStorageService LocalStorageService;
+@inject ISnackbar SnackBar;
+@inject NavigationManager NavigationManager;
+@inject IRefreshService RefreshService;
+
+<MudOverlay @bind-Visible="isVisible" DarkBackground="true" LockScroll="true">
+    <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
+        <DataAnnotationsValidator />
+        <MudGrid>
+            <MudItem xs="12" sm="7">
+                <MudCard>
+                    <MudCardContent>
+                        <MudText Typo="Typo.subtitle1" Class="mb-4">Editar producto</MudText>
+                        <MudTextField Label="Nombre del producto" HelperText="Maximo 255 caracteres."
+                                      @bind-Value="model.Name" For="@(() => model.Name)"/>
+                        <MudTextField Label="Modelo del producto" HelperText="Maximo 255 caracteres."
+                                      @bind-Value="model.Model" For="@(() => model.Model)" />
+                        <MudNumericField @bind-Value="model.Price" Label="Precio" Variant="Variant.Text" Step=".2M"
+                                         HelperText="Precio del producto" For="@(() => model.Price)" Culture="@_pa" />
+                        <MudTextField T="string" Label="Descripción" Variant="Variant.Text" Lines="3"
+                                      @bind-Value="model.Description" HelperText="Descripción del producto" MaxLength="1024"
+                                      For="@(() => model.Description)" />
+                        <MudFileUpload id="product-add-image" FilesChanged="OnFileSelectedChange" T="IBrowserFile" Accept=".png, .jpeg" MaximumFileCount="1">
+                            <ButtonTemplate Context="button">
+                                <MudButton HtmlTag="label"
+                                           Variant="Variant.Filled"
+                                           Color="Color.Success"
+                                           StartIcon="@Icons.Material.Filled.CloudUpload"
+                                           for="product-add-image">
+                                    Seleccionar imagen
+                                </MudButton>
+                            </ButtonTemplate>
+                        </MudFileUpload>
+                    </MudCardContent>
+                    <MudCardActions>
+                        <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary">
+                            @if (isLoading)
+                            {
+                                <MudProgressCircular Color="Color.Default" Indeterminate="true" Size="Size.Small" />
+                            }
+                            else
+                            {
+                                <MudText>Editar producto</MudText>
+                            }
+                        </MudButton>
+                        <MudSpacer />
+                        @if (!isLoading)
+                        {
+                            <MudButton Variant="Variant.Outlined" Color="Color.Error" OnClick="OnEditProductCancel">Cancelar</MudButton>
+                        }
+                    </MudCardActions>
+                </MudCard>
+            </MudItem>
+            <MudItem xs="12" sm="5">
+                <MudPaper Class="pa-4 mud-height-full">
+                    <MudText Typo="Typo.subtitle2">Resumen de Validaciones</MudText>
+                    <MudText Color="@Color.Error">
+                        <ValidationSummary />
+                    </MudText>
+                </MudPaper>
+            </MudItem>
+        </MudGrid>
+    </EditForm>
+</MudOverlay>
+
+@code {
+    [Parameter]
+    public ProductDTO model { get; set; }
+    [Parameter]
+    [EditorRequired]
+    public bool isVisible { get; set; }
+
+    public CultureInfo _pa = CultureInfo.GetCultureInfo("es-PA");
+    public bool isLoading { get; set; }
+
+    private async void OnFileSelectedChange(IBrowserFile file)
+    {
+        long maxImageSize = 2000000;
+
+        if (file != null)
+        {
+            var buffer = new byte[file.Size];
+
+            if (file.Size > maxImageSize)
+            {
+                SnackBar.Add("El archivo es demasiado pesado. El tamaño maximo es 2mb.", Severity.Success);
+                return;
+            }
+
+            await file.OpenReadStream(maxImageSize).ReadAsync(buffer);
+
+            model.ImageData = Convert.ToBase64String(buffer);
+            model.MimeType = file.ContentType;
+        }
+    }
+
+    private void OnEditProductCancel()
+    {
+        isVisible = false;
+    }
+
+    private async void OnValidSubmit(EditContext context)
+    {
+        await EditProductAsync();
+        StateHasChanged();
+    }
+
+    private async Task EditProductAsync()
+    {
+        isLoading = true;
+        HttpResponseMessage response = await Http.PostAsJsonAsync<ProductDTO>("api/product/edit", model);
+
+        if (response.StatusCode == HttpStatusCode.OK)
+        {
+            ProductDTO? responseContent = await response.Content.ReadFromJsonAsync<ProductDTO>();
+            if (responseContent != null)
+            {
+                model = responseContent;
+                isVisible = false;
+                RefreshService.CallRequestRefresh();
+                SnackBar.Add("¡Se ha modificado el producto existosaente!", Severity.Success);
+            }
+            else
+            {
+                SnackBar.Add("Error del sistema.", Severity.Error);
+            }
+        }
+        else if (response.StatusCode == HttpStatusCode.Unauthorized)
+        {
+            SnackBar.Add("La sesión ha caducado. Por favor inicie sesión nuevamente.", Severity.Warning);
+            await LocalStorageService.RemoveItem("user");
+            NavigationManager.NavigateTo("Auth/Login");
+        }
+        else if (response.StatusCode == HttpStatusCode.NotFound)
+        {
+            SnackBar.Add("No se encuentra el producto que desea modificar.", Severity.Warning);
+        }
+        else
+        {
+            SnackBar.Add("Error del sistema.", Severity.Error);
+        }
+        isLoading = false;
+    }
+}
