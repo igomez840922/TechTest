@@ -13,11 +13,17 @@
         <MudText Typo="Typo.subtitle1">¡Organiza tus productos fácilmente! Guarda todos tus artículos con nombre, precio, modelo, imagen y descripción. ¡Mantén tu inventario al alcance de tu mano con solo un clic!</MudText>
         <div class="mt-8">
             <NotAuthenticated>
-                <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto" OnClick="OnClickRegisterHandler">Registrate</MudButton>
-                <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Outlined" Color="Color.Secondary" Class="ml-2" OnClick="OnClickLoginHandler">Inicia sesión</MudButton>
+                <MudLink Href="Auth/Register">
+                    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">Registrate</MudButton>
+                </MudLink>
+                <MudLink Href="Auth/Login">
+                    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Outlined" Color="Color.Secondary" Class="ml-auto">Inicia sesión</MudButton>
+                </MudLink>
             </NotAuthenticated>
             <Authenticated>
-                <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">Productos</MudButton>
+                <MudLink Href="Products">
+                    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">Productos</MudButton>
+                </MudLink>
             </Authenticated>
         </div>
     </MudItem>
@@ -29,29 +35,3 @@
         <MudImage Src="hero.svg" Width="512" Fluid="true"/>
     </MudItem>
 </MudGrid>
-
-@code {
-    bool isLoggedIn;
-
-    protected override async Task OnInitializedAsync()
-    {
-        string token = await LocalStorageService.GetItem<string>("token");
-
-        if(!string.IsNullOrEmpty(token)){
-            isLoggedIn = true;
-            return;
-        }
-
-        isLoggedIn = false;
-    }
-
-    void OnClickRegisterHandler()
-    {
-        NavigationManager.NavigateTo("/Auth/Register");
-    }
-
-    void OnClickLoginHandler()
-    {
-        NavigationManager.NavigateTo("/Auth/Login");
-    }
-}

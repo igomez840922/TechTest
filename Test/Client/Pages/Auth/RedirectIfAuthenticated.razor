@@ -1,0 +1,22 @@
+﻿@using Test.Client.Services;
+@using Test.Shared.DTOS;
+
+@inject ILocalStorageService LocalStorageService;
+@inject NavigationManager NavigationManager;
+@inject ISnackbar SnackBar;
+
+@code {
+    bool isAuthenticated;
+
+    protected override async Task OnInitializedAsync()
+    {
+        UserDTO? user = await LocalStorageService.GetItem<UserDTO>("user");
+        isAuthenticated = user != null && user.ID != 0;
+
+        if (isAuthenticated)
+        {
+            NavigationManager.NavigateTo("/Products");
+            SnackBar.Add("Ya estas autenticado.", Severity.Warning);
+        }
+    }
+}

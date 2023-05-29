@@ -9,11 +9,12 @@
 @inject HttpClient Http;
 @inject ILocalStorageService LocalStorageService;
 @inject ISnackbar SnackBar;
+@inject NavigationManager NavigationManager;
 
 <PageTitle>Registrate</PageTitle>
 
+<RedirectIfAuthenticated/>
 <MudText Typo="Typo.subtitle1" Style="margin-bottom: 2rem">Registrate</MudText>
-
 <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
     <DataAnnotationsValidator />
     <MudGrid>
@@ -96,6 +97,7 @@
             UserDTO? responseContent = await response.Content.ReadFromJsonAsync<UserDTO>();
             await LocalStorageService.SetItem<UserDTO>("user", responseContent != null ? responseContent : new UserDTO());
             SnackBar.Add("¡Usuario registrado satisfactoriamente!", Severity.Success);
+            NavigationManager.NavigateTo("/Products");
         }
         else if(response.StatusCode == HttpStatusCode.Conflict)
         {

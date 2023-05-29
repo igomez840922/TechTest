@@ -1,6 +1,9 @@
-﻿@page "/products"
+﻿@page "/Products"
 
-<h3>Products</h3>
+@using Test.Client.Pages.Auth
+
+<RedirectIfNotAuthenticated/>
+<MudText Typo="Typo.subtitle1">Productos</MudText>
 
 @code {
 
