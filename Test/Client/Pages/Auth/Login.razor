@@ -1,7 +1,97 @@
 ﻿@page "/Auth/Login"
 
-<PageTitle>Inicia Sesión</PageTitle>
+@using System.ComponentModel.DataAnnotations
+@using System.Net.Http;
+@using System.Net.Http.Json;
+@using System.Net;
+@using Test.Client.Services;
+@using Test.Shared.DTOS;
+
+
+@inject HttpClient Http;
+@inject ILocalStorageService LocalStorageService;
+@inject ISnackbar SnackBar;
+@inject NavigationManager NavigationManager;
+
+<PageTitle>Inicia sesión</PageTitle>
+<RedirectIfAuthenticated />
+<MudText Typo="Typo.h2" Style="margin-bottom: 2rem">Inicia sesión</MudText>
+<EditForm Model="@model" OnValidSubmit="OnValidSubmit">
+    <DataAnnotationsValidator />
+    <MudGrid>
+        <MudItem xs="12" sm="7">
+            <MudCard>
+                <MudCardContent>
+                    <MudTextField Label="Email" Class="mt-3" HelperText="Introduzca su correo electronico."
+                                  @bind-Value="model.Email" For="@(() => model.Email)" InputType="InputType.Email" />
+                    <MudTextField Label="Contraseña" HelperText="Minimo 8 caracteres." Class="mt-3"
+                                  @bind-Value="model.Password" For="@(() => model.Password)" InputType="InputType.Password" />
+                </MudCardContent>
+                <MudCardActions>
+                    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">
+                        @if (isLoading)
+                        {
+                            <MudProgressCircular Color="Color.Default" Indeterminate="true" Size="Size.Small" />
+                        }
+                        else
+                        {
+                            <MudText>Inicia sesión</MudText>
+                        }
+                    </MudButton>
+                </MudCardActions>
+            </MudCard>
+        </MudItem>
+        <MudItem xs="12" sm="5">
+            <MudPaper Class="pa-4 mud-height-full">
+                <MudText Typo="Typo.subtitle2">Resumen de Validaciones</MudText>
+                <MudText Color="@Color.Error">
+                    <ValidationSummary />
+                </MudText>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="12">
+            <MudText Typo="Typo.body2" Align="Align.Center">
+                ¿No tienes una cuenta? <MudLink Href="/Auth/Register">Registrate</MudLink>.
+            </MudText>
+        </MudItem>
+    </MudGrid>
+</EditForm>
+
 
 @code {
+    LoginUserDTO model = new LoginUserDTO();
 
+    bool success;
+    bool isLoading;
+
+    private async void OnValidSubmit(EditContext context)
+    {
+        success = true;
+        await LoginAsync();
+        StateHasChanged();
+    }
+
+    private async Task LoginAsync()
+    {
+        isLoading = true;
+        HttpResponseMessage response = await Http.PostAsJsonAsync<LoginUserDTO>("api/user/login", model);
+
+        if (response.StatusCode == HttpStatusCode.OK)
+        {
+            UserDTO? responseContent = await response.Content.ReadFromJsonAsync<UserDTO>();
+            await LocalStorageService.SetItem<UserDTO>("user", responseContent != null ? responseContent : new UserDTO());
+            SnackBar.Add("¡Has iniciado sesión satisfactoriamente!", Severity.Success);
+            NavigationManager.NavigateTo("/Products");
+        }
+        else if (response.StatusCode == HttpStatusCode.Unauthorized)
+        {
+            SnackBar.Add("Usuario o contraseña invalidos.", Severity.Warning);
+        }
+        else
+        {
+            SnackBar.Add("Error del sistema.", Severity.Error);
+        }
+
+        isLoading = false;
+    }
 }
