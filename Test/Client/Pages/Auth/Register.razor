@@ -78,7 +78,7 @@
     {
         userTypes = await Http.GetFromJsonAsync<List<Test.Shared.Models.Type>>("api/user/usertypes");
     }
-
+     
     private async void OnValidSubmit(EditContext context)
     {
         success = true;
@@ -94,7 +94,7 @@
         if(response.StatusCode == HttpStatusCode.Created)
         {
             UserDTO? responseContent = await response.Content.ReadFromJsonAsync<UserDTO>();
-            await LocalStorageService.SetItem("token", responseContent != null ? responseContent.Token : string.Empty);
+            await LocalStorageService.SetItem<UserDTO>("user", responseContent != null ? responseContent : new UserDTO());
             SnackBar.Add("¡Usuario registrado satisfactoriamente!", Severity.Success);
         }
         else if(response.StatusCode == HttpStatusCode.Conflict)

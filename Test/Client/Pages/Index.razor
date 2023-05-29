@@ -1,4 +1,9 @@
 ﻿@page "/"
+@using Test.Client.Pages.Auth
+@using Test.Client.Services;
+
+@inject NavigationManager NavigationManager;
+@inject ILocalStorageService LocalStorageService;
 
 <PageTitle>Product Registry</PageTitle>
 
@@ -7,8 +12,13 @@
         <MudText Typo="Typo.h2">Product Registry</MudText>
         <MudText Typo="Typo.subtitle1">¡Organiza tus productos fácilmente! Guarda todos tus artículos con nombre, precio, modelo, imagen y descripción. ¡Mantén tu inventario al alcance de tu mano con solo un clic!</MudText>
         <div class="mt-8">
-            <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">Registrate</MudButton>
-            <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Outlined" Color="Color.Secondary" Class="ml-2">Inicia sesión</MudButton>
+            <NotAuthenticated>
+                <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto" OnClick="OnClickRegisterHandler">Registrate</MudButton>
+                <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Outlined" Color="Color.Secondary" Class="ml-2" OnClick="OnClickLoginHandler">Inicia sesión</MudButton>
+            </NotAuthenticated>
+            <Authenticated>
+                <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">Productos</MudButton>
+            </Authenticated>
         </div>
     </MudItem>
     <MudItem xs="12" sm="6">
@@ -19,3 +29,29 @@
         <MudImage Src="hero.svg" Width="512" Fluid="true"/>
     </MudItem>
 </MudGrid>
+
+@code {
+    bool isLoggedIn;
+
+    protected override async Task OnInitializedAsync()
+    {
+        string token = await LocalStorageService.GetItem<string>("token");
+
+        if(!string.IsNullOrEmpty(token)){
+            isLoggedIn = true;
+            return;
+        }
+
+        isLoggedIn = false;
+    }
+
+    void OnClickRegisterHandler()
+    {
+        NavigationManager.NavigateTo("/Auth/Register");
+    }
+
+    void OnClickLoginHandler()
+    {
+        NavigationManager.NavigateTo("/Auth/Login");
+    }
+}
