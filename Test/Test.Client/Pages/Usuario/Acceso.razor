@@ -1,0 +1,33 @@
+﻿@page "/login"
+@using Test.Client.Servicios;
+@using Test.Shared.Dtos;
+
+@inject IUsuarioService _userService;
+@inject MudBlazor.ISnackbar snackBar
+
+
+<MudCard Elevation="25">
+    <MudCardHeader>
+        <CardHeaderContent>
+            <MudText Typo="Typo.h6">LOGIN</MudText>
+        </CardHeaderContent>
+    </MudCardHeader>
+    <MudCardContent>
+        <MudForm Model="@user">
+            <MudTextField @bind-Value="user.Email" Label="Email" InputType="InputType.Email" T="string" Required="true" RequiredError="(*) El email es un campo requerido."></MudTextField>
+            <MudTextField @bind-Value="user.Password" Label="Password" InputType="InputType.Password" T="string" Required="true" RequiredError="(*) El password es un campo requerido."></MudTextField>
+            <br />
+            <MudButton Variant="Variant.Filled" Color="Color.Success" @onclick="login">Acceder</MudButton>
+        </MudForm>
+    </MudCardContent>
+</MudCard>
+@code {
+
+    MudForm form = new MudForm();
+    private Login user = new Login();
+
+    private void login()
+    {
+        var token = _userService.Login(user);
+    }
+}

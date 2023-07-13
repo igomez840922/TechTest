@@ -13,7 +13,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test.Data", "Test\Test.Data
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test.ServiceDependencies", "Test\Test.ServiceDependencies\Test.ServiceDependencies.csproj", "{02DC19B3-24F6-4C7B-B9AF-B2C685C6E87F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test.Package", "Test\Test.Package\Test.Package.csproj", "{C5A5E6AF-2C61-4D92-90B8-0937C95E284F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test.Package", "Test\Test.Package\Test.Package.csproj", "{C5A5E6AF-2C61-4D92-90B8-0937C95E284F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
