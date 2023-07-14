@@ -1,0 +1,12 @@
+﻿@page "/sesiones"
+
+@inject Blazored.LocalStorage.ILocalStorageService _localStorageService;
+@inject NavigationManager _navigatorManager;
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await _localStorageService.RemoveItemAsync("token");
+        _navigatorManager.NavigateTo("/login");
+    }
+}

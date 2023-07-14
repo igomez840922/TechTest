@@ -1,0 +1,18 @@
+﻿@page "/lista-productos"
+
+@inject Blazored.LocalStorage.ILocalStorageService _localStorageService;
+@inject NavigationManager _navigatorManager;
+@inject MudBlazor.ISnackbar _snackBar
+
+<h3>ListaProductos</h3>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        if (string.IsNullOrEmpty(await _localStorageService.GetItemAsync<string>("token")))
+        {
+            _snackBar.Add($"Debe iniciar sesion para poder acceder", Severity.Success);
+            _navigatorManager.NavigateTo("/login");
+        }
+    }
+}

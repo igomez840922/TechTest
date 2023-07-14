@@ -1,3 +1,4 @@
+using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using MudBlazor.Services;
@@ -14,5 +15,7 @@ builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 
 // MudBlazor
 builder.Services.AddMudServices();
+// BlazoredStorage
+builder.Services.AddBlazoredLocalStorage();
 
 await builder.Build().RunAsync();

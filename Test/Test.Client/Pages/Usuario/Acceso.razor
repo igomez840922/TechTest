@@ -1,9 +1,9 @@
 ﻿@page "/login"
-@using Test.Client.Servicios;
-@using Test.Shared.Dtos;
 
+@inject Blazored.LocalStorage.ILocalStorageService _localStorageService;
 @inject IUsuarioService _userService;
-@inject MudBlazor.ISnackbar snackBar
+@inject MudBlazor.ISnackbar _snackBar
+@inject NavigationManager _navigatorManager;
 
 
 <MudCard Elevation="25">
@@ -26,8 +26,26 @@
     MudForm form = new MudForm();
     private Login user = new Login();
 
-    private void login()
+    private async void login()
     {
-        var token = _userService.Login(user);
+        try
+        {
+            var data = await _userService.Login(user);
+            if (!string.IsNullOrEmpty(data.Token))
+            {
+                _snackBar.Add($"Bienvenido {user.Email}", Severity.Success);
+                await _localStorageService.SetItemAsync("token", data.Token);
+                _navigatorManager.NavigateTo("/lista-productos");
+            }
+            else
+            {
+                _snackBar.Add($"Debe registrarse para poder acceder", Severity.Success);
+                _navigatorManager.NavigateTo("/nuevousuario");
+            }
+        }
+        catch (Exception ex)
+        {
+            throw new ArgumentException("Se presento un error al loguearse.", ex.Message);
+        }
     }
 }
