@@ -7,6 +7,6 @@
     protected override async Task OnInitializedAsync()
     {
         await _localStorageService.RemoveItemAsync("token");
-        _navigatorManager.NavigateTo("/login");
+        _navigatorManager.NavigateTo("/");
     }
 }

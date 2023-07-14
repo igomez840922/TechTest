@@ -12,7 +12,7 @@
         if (string.IsNullOrEmpty(await _localStorageService.GetItemAsync<string>("token")))
         {
             _snackBar.Add($"Debe iniciar sesion para poder acceder", Severity.Success);
-            _navigatorManager.NavigateTo("/login");
+            _navigatorManager.NavigateTo("/");
         }
     }
 }
