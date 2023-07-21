@@ -12,7 +12,7 @@ using Test.Server.Data;
 namespace Test.Server.Migrations
 {
     [DbContext(typeof(TestServerContext))]
-    [Migration("20230721042031_TestInitialCreation")]
+    [Migration("20230721054905_TestInitialCreation")]
     partial class TestInitialCreation
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -251,9 +251,9 @@ namespace Test.Server.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Price")
+                    b.Property<decimal?>("Price")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");
 

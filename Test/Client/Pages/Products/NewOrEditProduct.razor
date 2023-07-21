@@ -6,7 +6,7 @@
 @using Test.Shared.Entities.DataBase;
 @inject IProductServices productServices
 @inject NavigationManager NavigationManager
-@using Microsoft.AspNetCore.WebUtilities
+@using Microsoft.AspNetCore.Hosting;
 <div class="card">
     @if (id == null)
     {
@@ -17,7 +17,7 @@
         <h4 class="card-header">Edit Product</h4>
     }
     <div class="card-body">
-        <EditForm Model="@product">
+        <EditForm Model="@product" OnValidSubmit="OnSubmit" >
             <DataAnnotationsValidator />
             <div class="form-group">
                 <label>Name</label>
@@ -36,40 +36,35 @@
             </div>
             <div class="form-group">
                 <label>Price</label>
-                <InputText @bind-Value="product.Price" class="form-control" />
+                <InputNumber @bind-Value="product.Price" class="form-control" />
                 <ValidationMessage For="@(() => product.Price)" />
             </div>
             <div class="form-group">
                 <label>Photo</label>
-                <InputText @bind-Value="product.Photo" class="form-control" />
-                <ValidationMessage For="@(() => product.Photo)" />
+                <p>Select a file <InputFile OnChange="@LoadFiles" accept=".png,.bmp,.jpg,.jpeg" /></p>
+                
+                <ValidationMessage For="@(() => product.Photo)"  />
             </div>
-            @*  <div class="form-group">
-            <label>Photo</label>
-            <br />
-            <InputFile OnChange="OnChangeImage" />
-            @*                <ValidationMessage For="@(() => product.Photo)" />
-            </div>*@
-
             <br />
             @if (!IsNew)
             {
-                <button class="btn btn-primary" @onclick="OnCliked">Edit</button>
+                <button class="btn btn-primary" type="submit" >Edit</button>
             }
             else
             {
-                <button class="btn btn-primary" @onclick="OnCliked">Agregar</button>
+                <button class="btn btn-primary" type="submit">Agregar</button>
             }
-            <NavLink href="/" class="btn btn-link">Cancel</NavLink>
+            <NavLink href="product" class="btn btn-link">Cancel</NavLink>
         </EditForm>
     </div>
 </div>
 
 @code {
+
     MarkupString ValidationString;
     [Parameter]
     public string? id { get; set; }
-    private Product product = new Product();
+    private Product product = new Product() {  Price = 0.0M};
     [Parameter]
     public EventCallback<object?> ProductCallback { get; set; }
     private bool loading;
@@ -95,16 +90,16 @@
         }
 
     }
-    public async Task OnCliked()
+    public async Task OnSubmit()
     {
         AppResult result = new AppResult();
         if(IsNew)
             result = await productServices.AddProduct(product);
         else
         {
-            result = await productServices.AddProduct(product);
+            result = await productServices.UpdateProduct(product);
         }
-        NavigationManager.NavigateTo("product");
+        NavigationManager.NavigateTo("/product");
         await ProductCallback.InvokeAsync(product);
 
     }
@@ -117,6 +112,25 @@
             await stream.CopyToAsync(ms);
             ImgList.Add($"data:{archivo.ContentType};base64,{Convert.ToBase64String(ms.ToArray())}");
         }
+    }
+    private async Task LoadFiles(InputFileChangeEventArgs e)
+    {
+        loading = true;
+        foreach (var file in e.GetMultipleFiles(1))
+        {
+            try
+            {
+                using var stream = file.OpenReadStream();
+                using var ms = new MemoryStream();
+                await stream.CopyToAsync(ms);
+                product.Photo = ($"data:{file.ContentType};base64,{Convert.ToBase64String(ms.ToArray())}");
+            }
+            catch (Exception ex)
+            {
+            }
+        }
+
+        loading = false;
     }
 }
 

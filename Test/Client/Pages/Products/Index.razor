@@ -1,4 +1,4 @@
-﻿@page "/products"
+﻿@page "/product"
 @attribute [Authorize]
 @using Microsoft.AspNetCore.Authorization;
 @using Microsoft.AspNetCore.Components.Authorization
@@ -11,8 +11,8 @@
 @inject IModalService modal
 <div class="container">
     <h3 class="p-3 text-center">Product List</h3>
-<AuthorizeView>
-    <Authorized>
+    <AuthorizeView>
+        <Authorized>
 
 
             <button @onclick="async ()=>await OpenProductModal(null)" class="btn btn-primary">
@@ -41,24 +41,31 @@
                             <td>@item.Price</td>
                             <td>@item.Description</td>
                             <td>@item.Model</td>
-                            <td>@item.Photo</td>
+                            <td>@((string.IsNullOrWhiteSpace(item.Photo) ? "(empty file)" : "(attached file)"))</td>
                             <td>
-                                <a href="/product/NewProduct/@item.Id">Edit</a>
+                                <a class="btn btn-warning" href="javascript:void(0);" @onclick="@(() => NavigationManager.NavigateTo($"product/NewOrEdit/{item.Id}"))"><i class="fa-solid fa-pencil"></i></a>
 
-                                <a class="btn btn-danger" @onclick="@(() => DeleteProduct(item.Id))">Delete</a>
+                                <a class="btn btn-danger" @onclick="@(() => DeleteProduct(item.Id))"><i class="fa-solid fa-trash"></i></a>
                             </td>
                         </tr>
 
                     }
 
+                    @if (productsList.Count <= 0)
+                    {
+                        <tr class="text-center">
+                            <td colspan="6">(List empty)</td>
+                        </tr>
+                    }
+
                 </tbody>
             </table>
-       
-    </Authorized>
-    <NotAuthorized>
-        <Unauthorized></Unauthorized>
-    </NotAuthorized>
-</AuthorizeView>
+
+        </Authorized>
+        <NotAuthorized>
+            <Unauthorized></Unauthorized>
+        </NotAuthorized>
+    </AuthorizeView>
 
 </div>
 
@@ -80,7 +87,7 @@
     public async Task GetProductList()
     {
         productsList.Clear();
-        var productItems = await productServices.GetAllProduct();        
+        var productItems = await productServices.GetAllProduct();
         foreach (var item in productItems)
         {
             productsList.Add(item);
@@ -109,8 +116,8 @@
 
     async Task OpenProductModal(string id)
     {
-                
-        NavigationManager.NavigateTo($"product/NewOrEdit?id={id}");
+
+        NavigationManager.NavigateTo($"product/NewOrEdit/{id}");
     }
 
 }

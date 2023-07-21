@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Options;
+﻿using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.Options;
 using System.Net.Http.Json;
 using System.Text.Json;
 using Test.Client.Interfaces;
@@ -9,22 +10,23 @@ namespace Test.Client.Services
 {
     public class ProductServices : IProductServices
     {
-        public ProductServices(HttpClient http)
+        public ProductServices(HttpClient http, NavigationManager navigationManager)
         {
             Http = http;
+            NavigationManager = navigationManager;
         }
         public HttpClient Http { get; }
-
+        public NavigationManager NavigationManager { get; }
 
         public async Task<AppResult> AddProduct(Product product)
         {
             AppResult result = new AppResult();
-            if(product == null)
+            if (product == null)
             {
                 result.Result = AppResultStatus.Failed;
                 result.Message = "Product is null";
                 return result;
-            }    
+            }
             try
             {
                 product.Id = Guid.NewGuid().ToString();
@@ -57,7 +59,11 @@ namespace Test.Client.Services
             }
             var response = await Http.DeleteAsync($"api/Products/{id}");
             var result = await response.Content.ReadAsStringAsync();
-            response.EnsureSuccessStatusCode();
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                NavigationManager.NavigateTo("/logout");
+                return null;
+            }
             try
             {
                 if (response.IsSuccessStatusCode)
@@ -80,37 +86,46 @@ namespace Test.Client.Services
         {
             var response = await Http.GetAsync($"api/Products/{id}");
             string content = await response.Content.ReadAsStringAsync();
-            response.EnsureSuccessStatusCode();
-            var options = new JsonSerializerOptions
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
             {
-                PropertyNameCaseInsensitive = true,
-            };
-            var product = JsonSerializer.Deserialize<Product>(content, options);
-            return product;
+                NavigationManager.NavigateTo("/logout");
+                return null;
+            }
+            try
+            {
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true,
+                };
+                var product = JsonSerializer.Deserialize<Product>(content, options);
+                return product;
+            }
+            catch (Exception)
+            {
+
+                return null;
+            }
         }
         public async Task<AppResult> UpdateProduct(Product product)
         {
             AppResult updatedResult = new AppResult();
-            var existingProduct = await GetProductById(product.Id);
+            var existingProduct = await GetProductById(product?.Id);
             if (existingProduct == null)
             {
                 updatedResult.Result = AppResultStatus.InternalError;
                 updatedResult.Message = "product is not fount";
                 return updatedResult;
             }
-            var productNew = new Product()
-            {
-                Id = product.Id,
-                Description = product.Description,
-                Model = product.Model,
-                Name = product.Name,
-                Photo = product.Photo,
-                Price = product.Price,
-            };
 
-            var response = await Http.PutAsJsonAsync($"api/Products/{productNew.Id}", productNew);
+            var response = await Http.PutAsJsonAsync($"api/Products/{product.Id}", product);
             string content = await response.Content.ReadAsStringAsync();
-            response.EnsureSuccessStatusCode();
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                updatedResult.Result = AppResultStatus.InternalError;
+                updatedResult.Message = "unauthorized";
+                NavigationManager.NavigateTo("/logout");
+                return updatedResult;
+            }
             try
             {
                 if (response.IsSuccessStatusCode)
@@ -138,7 +153,11 @@ namespace Test.Client.Services
                 }
                 var response = await Http.GetAsync($"api/Products");
                 string content = await response.Content.ReadAsStringAsync();
-
+                if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                {
+                    NavigationManager.NavigateTo("/logout");
+                    return list;
+                }
                 var options = new JsonSerializerOptions
                 {
                     PropertyNameCaseInsensitive = true,
@@ -150,11 +169,11 @@ namespace Test.Client.Services
                     list.Add(item);
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
 
             }
-            
+
             return list;
         }
     }

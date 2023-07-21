@@ -15,7 +15,6 @@ namespace Test.Shared.Entities.DataBase
 
         }
         [Key]
-        [Required]
         [MaxLength(37)]
         public string? Id { get; set; }
         [Required]
@@ -26,7 +25,8 @@ namespace Test.Shared.Entities.DataBase
         [MaxLength(50)]
         public string? Description { get; set; }
         [Required]
-        public string? Price { get; set; }
+        
+        public decimal? Price { get; set; }
         [Required]
         [DisplayName("upload Image")]
         public string? Photo { get; set; }
