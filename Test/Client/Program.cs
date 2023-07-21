@@ -23,3 +23,4 @@ builder.Services.AddScoped<AuthenticationStateProvider, AuthStateProvider>();
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 builder.Services.AddApiAuthorization();
 await builder.Build().RunAsync();
+//commit to save changes in other branch
