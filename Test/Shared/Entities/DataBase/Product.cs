@@ -26,7 +26,7 @@ namespace Test.Shared.Entities.DataBase
         public string? Description { get; set; }
         [Required]
         
-        public string? Price { get; set; }
+        public decimal? Price { get; set; }
         [Required]
         [DisplayName("upload Image")]
         public string? Photo { get; set; }

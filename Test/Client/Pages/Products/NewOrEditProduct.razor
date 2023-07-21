@@ -93,7 +93,7 @@
     MarkupString ValidationString;
     [Parameter]
     public string? id { get; set; }
-    private Product product = new Product() { Price = "0.0" };
+    private Product product = new Product();
     [Parameter]
     public EventCallback<object?> ProductCallback { get; set; }
     private bool loading;
