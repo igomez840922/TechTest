@@ -1,9 +1,15 @@
 ﻿@page "/"
+@using Test.Client.Interfaces;
+@using Test.Client.Services;
+@using Test.Shared.Entities.DataBase;
+@using Test.Shared.Entities;
+@inject IProductServices productServices
+@inject NavigationManager NavigationManager
+@inject IModalService modal
+<div class="container">
+    <h3 class="p-3 text-center">Home Page</h3>
 
-<PageTitle>Index</PageTitle>
+    <div>Just a page to test my skills at C# .net core 6 and blazor with identity, JWT and entityFramework with migrations</div>
+    <div>Enjoy it</div>
+</div>
 
-<h1>Hello, world!</h1>
-
-Welcome to your new app.
-
-<SurveyPrompt Title="How is Blazor working for you?" />

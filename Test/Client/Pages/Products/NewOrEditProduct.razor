@@ -1,0 +1,122 @@
+﻿@page "/product/NewOrEdit"
+@page "/product/NewOrEdit/{id?}"
+@using Microsoft.Extensions.Primitives;
+@using Test.Client.Interfaces;
+@using Test.Shared.Entities;
+@using Test.Shared.Entities.DataBase;
+@inject IProductServices productServices
+@inject NavigationManager NavigationManager
+@using Microsoft.AspNetCore.WebUtilities
+<div class="card">
+    @if (id == null)
+    {
+        <h4 class="card-header">New Product</h4>
+    }
+    else
+    {
+        <h4 class="card-header">Edit Product</h4>
+    }
+    <div class="card-body">
+        <EditForm Model="@product">
+            <DataAnnotationsValidator />
+            <div class="form-group">
+                <label>Name</label>
+                <InputText @bind-Value="product.Name" class="form-control" />
+                <ValidationMessage For="@(() => product.Name)" />
+            </div>
+            <div class="form-group">
+                <label>Model</label>
+                <InputText @bind-Value="product.Model" class="form-control" />
+                <ValidationMessage For="@(() => product.Model)" />
+            </div>
+            <div class="form-group">
+                <label>Description</label>
+                <InputText @bind-Value="product.Description" class="form-control" />
+                <ValidationMessage For="@(() => product.Description)" />
+            </div>
+            <div class="form-group">
+                <label>Price</label>
+                <InputText @bind-Value="product.Price" class="form-control" />
+                <ValidationMessage For="@(() => product.Price)" />
+            </div>
+            <div class="form-group">
+                <label>Photo</label>
+                <InputText @bind-Value="product.Photo" class="form-control" />
+                <ValidationMessage For="@(() => product.Photo)" />
+            </div>
+            @*  <div class="form-group">
+            <label>Photo</label>
+            <br />
+            <InputFile OnChange="OnChangeImage" />
+            @*                <ValidationMessage For="@(() => product.Photo)" />
+            </div>*@
+
+            <br />
+            @if (!IsNew)
+            {
+                <button class="btn btn-primary" @onclick="OnCliked">Edit</button>
+            }
+            else
+            {
+                <button class="btn btn-primary" @onclick="OnCliked">Agregar</button>
+            }
+            <NavLink href="/" class="btn btn-link">Cancel</NavLink>
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    MarkupString ValidationString;
+    [Parameter]
+    public string? id { get; set; }
+    private Product product = new Product();
+    [Parameter]
+    public EventCallback<object?> ProductCallback { get; set; }
+    private bool loading;
+    private bool IsNew;
+    public List<string> ImgList { get; set; } = new List<string>();
+    private const int maxImageSize = 2 * 1024 * 1024;
+    protected override async Task OnInitializedAsync()
+    {
+        // Obtener el ID del producto desde los parámetros de ruta
+        
+        //StringValues query;
+        //var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
+        //if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("id", out query))
+        //{
+        //    id = query.ToString();
+        //}
+        IsNew = true;
+        if (!string.IsNullOrEmpty(id))
+        {
+            IsNew = false;
+            // Si se proporciona un ID válido, obtener los datos del producto
+            product = await productServices.GetProductById(id);
+        }
+
+    }
+    public async Task OnCliked()
+    {
+        AppResult result = new AppResult();
+        if(IsNew)
+            result = await productServices.AddProduct(product);
+        else
+        {
+            result = await productServices.AddProduct(product);
+        }
+        NavigationManager.NavigateTo("product");
+        await ProductCallback.InvokeAsync(product);
+
+    }
+    async Task OnChangeImage(InputFileChangeEventArgs e)
+    {
+        foreach (var archivo in e.GetMultipleFiles())
+        {
+            using var stream = archivo.OpenReadStream(maxImageSize);
+            using var ms = new MemoryStream();
+            await stream.CopyToAsync(ms);
+            ImgList.Add($"data:{archivo.ContentType};base64,{Convert.ToBase64String(ms.ToArray())}");
+        }
+    }
+}
+
