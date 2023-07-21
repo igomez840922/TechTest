@@ -10,70 +10,89 @@
 @inject NavigationManager NavigationManager
 @inject IModalService modal
 <div class="container">
-    <h3 class="p-3 text-center">Product List</h3>
-    <AuthorizeView>
-        <Authorized>
+
+    <MudText Typo="Typo.h3" class="p-3 text-center">Products</MudText>
+    <hr class="w-100" />
+    <div class="m-3">
+        <AuthorizeView>
+            <Authorized>
+
+                <div class="w-100">
+                    <div class="w-100">
+                        <MudFab Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" Class="float-end" OnClick="async ()=>await OpenProductModal(null)" />
+                    </div>
+
+                    <hr />
+                    <MudDataGrid Items="@productList" Filterable="false" SortMode="@SortMode.None" Groupable="false">
+                        <Columns>
+                            <PropertyColumn Property="x => x.Name" Title="Name and Model">
+
+                                <CellTemplate Context="ctx">
+                                    <MudStack Row>
+
+                                        <MudIcon Icon="@Icons.Material.Filled.Shield" Size=Size.Medium Title="Name and model" />
+
+                                        <div class="row">
+                                            <div class="row">
+                                                <MudText Typo="Typo.h4">@ctx.Item.Name</MudText>
+                                            </div>
+                                            <div class="d-flex flex-wrap align-items-center">
+                                                <MudText Typo="Typo.caption" Class="me-2">Model: </MudText>
+                                                <MudText Typo="Typo.h6"> @ctx.Item.Model</MudText>
+                                            </div>
+                                        </div>
+
+                                    </MudStack>
+                                </CellTemplate>
 
 
-            <button @onclick="async ()=>await OpenProductModal(null)" class="btn btn-primary">
-                Create New Product
-            </button>
-            <br />
-            <br />
-            <table class="table table-striped table-bordered">
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Price</th>
-                        <th>Description</th>
-                        <th>Model</th>
-                        <th>Photo</th>
-                        <th>Actions</th>
+                            </PropertyColumn>
+                            <PropertyColumn Property="x => x.Price">
+                                    <TemplateColumn CellClass="d-flex justify-end">
+                                        <CellTemplate Context="ctx">
+                                            <MudStack Row>
+                                                <MudIcon Icon="@Icons.Material.Filled.Money" Title="Price" />
+                                            <MudText Typo="Typo.h4"> @ctx.Item.Price</MudText>
+                                            </MudStack>
+                                        </CellTemplate>
+                                    </TemplateColumn>
+                            </PropertyColumn>
+                                <PropertyColumn Property="x => x.Description">
+                                    <TemplateColumn CellClass="d-flex justify-end">
+                                        <CellTemplate Context="ctx">
+                                            <MudStack Row>
+                                                <MudIcon Icon="@Icons.Material.Filled.AttachFile" Title="Photo" />
 
-
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in productsList)
-                    {
-                        <tr>
-                            <td>@item.Name</td>
-                            <td>@item.Price</td>
-                            <td>@item.Description</td>
-                            <td>@item.Model</td>
-                            <td>@((string.IsNullOrWhiteSpace(item.Photo) ? "(empty file)" : "(attached file)"))</td>
-                            <td>
-                                <a class="btn btn-warning" href="javascript:void(0);" @onclick="@(() => NavigationManager.NavigateTo($"product/NewOrEdit/{item.Id}"))"><i class="fa-solid fa-pencil"></i></a>
-
-                                <a class="btn btn-danger" @onclick="@(() => DeleteProduct(item.Id))"><i class="fa-solid fa-trash"></i></a>
-                            </td>
-                        </tr>
-
-                    }
-
-                    @if (productsList.Count <= 0)
-                    {
-                        <tr class="text-center">
-                            <td colspan="6">(List empty)</td>
-                        </tr>
-                    }
-
-                </tbody>
-            </table>
-
-        </Authorized>
-        <NotAuthorized>
-            <Unauthorized></Unauthorized>
-        </NotAuthorized>
-    </AuthorizeView>
-
+                                            </MudStack>
+                                        </CellTemplate>
+                                    </TemplateColumn>
+                            </PropertyColumn>
+                                <TemplateColumn CellClass="d-flex justify-end">
+                                    <CellTemplate Context="ctx">
+                                        <MudStack Row>
+                                            @*                                 <MudRating Size="@Size.Small" SelectedValue="@context.Item.Rating" />
+                                            <MudButton Size="@Size.Small" Variant="@Variant.Filled" Color="@Color.Primary">Hire</MudButton>*@
+                                        <MudFab Color="Color.Warning" StartIcon="@Icons.Material.Filled.Edit" Size="Size.Small" @onclick="@(() => NavigationManager.NavigateTo($"product/NewOrEdit/{ctx.Item.Id}"))" />
+                                        <MudFab Color="Color.Secondary" StartIcon="@Icons.Material.Filled.DeleteForever" Size="Size.Small" @onclick="@(() => DeleteProduct(ctx.Item.Id))" />
+                                        </MudStack>
+                                    </CellTemplate>
+                                </TemplateColumn>
+                        </Columns>
+                    </MudDataGrid>
+                </div>
+            </Authorized>
+            <NotAuthorized>
+                <Unauthorized></Unauthorized>
+            </NotAuthorized>
+        </AuthorizeView>
+    </div>
 </div>
 
 
 
 @code {
     Product productItem { get; set; } = new Product();
-    public List<Product> productsList { get; set; } = new List<Product>();
+    public List<Product> productList { get; set; } = new List<Product>();
 
     protected override async Task OnInitializedAsync()
     {
@@ -86,11 +105,11 @@
     }
     public async Task GetProductList()
     {
-        productsList.Clear();
+        productList.Clear();
         var productItems = await productServices.GetAllProduct();
         foreach (var item in productItems)
         {
-            productsList.Add(item);
+            productList.Add(item);
         }
     }
     public async Task DeleteProduct(string id)

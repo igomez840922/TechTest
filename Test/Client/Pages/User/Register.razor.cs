@@ -13,8 +13,8 @@ namespace Test.Client.Pages.User
         [Inject]
         public NavigationManager NavigationManager { get; set; }
         public bool ShowRegistrationErros { get; set; }
-        public IEnumerable<string> Errors { get; set; }
-
+        public IEnumerable<string> Errors { get; set; } = new List<string>();
+        public bool success { get; set; }
         public async Task RegisterUser()
         {
             ShowRegistrationErros = false;
@@ -27,6 +27,7 @@ namespace Test.Client.Pages.User
             }
             else
             {
+                success = true;
                 NavigationManager.NavigateTo("/");
             }
         }
