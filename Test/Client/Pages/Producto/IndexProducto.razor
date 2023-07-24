@@ -1,0 +1,159 @@
+﻿@page "/IndexProducto"
+@using OfficeOpenXml;
+@using PdfSharpCore.Pdf;
+@using PdfSharpCore.Drawing;
+@using PdfSharpCore.Drawing.Layout;
+@using System.IO;
+@using CurrieTechnologies.Razor.SweetAlert2;
+@using Test.Client.ServiceRepository;
+@using Test.Shared.Entities
+@using  Microsoft.AspNetCore.Components.Authorization
+@inject IJSRuntime Js
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NavigationManager navigationManager
+@inject IServiceRepository repositorio
+@inject SweetAlertService Swal
+<h3>Productos</h3>
+<AuthorizeView>
+    <Authorized>
+        <h3>Hola, @context.User.Identity!.Name estos son tus productos</h3>
+    </Authorized>
+</AuthorizeView>
+
+
+<div class="mb-3">
+    <a class="btn btn-info" href="/Producto/CrearProductos">crear producto</a>
+</div>
+
+<GenericList Listado="producto">
+    <HayRegistrosCompleto>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Nombre</th>
+                    <th>Modelo</th>
+                    <th>Precio</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var prod in producto!)
+                {
+                    <tr>
+                        <td>
+                            <a href="Producto/editarProducto/@prod.ProductoId" class="btn btn-success">Editar</a>
+                            <button class="btn btn-danger" @onclick=@(() => Borrar(prod))>
+                                Borrar
+                            </button>
+                        </td>
+                        <td>
+                            @prod.Nombre
+                        </td>
+                        <td>
+                            @prod.Modelo
+                        </td>
+                        <td>
+                            @prod.precio
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        @if(producto.Count > 0)
+        {
+            <button @onclick="ExportarExcel" class="btn btn-success">Exportar a Excel</button>
+            //<button @onclick="ExportarPDF" class="btn btn-success">Exportar a PDF</button>
+
+        }
+        <a id="downloadLink" href="#" style="position: absolute; left: -10000px; top: -10000px;">Descargar</a>
+
+
+    </HayRegistrosCompleto>
+</GenericList>
+
+@code {
+
+
+    private string base64FileStream;
+    private string base64FileName;
+
+    public List<Producto>? producto { get; set; }
+
+    protected async override Task OnInitializedAsync()
+    {
+        await LoadPage();
+    }
+
+    private async Task Borrar(Producto producto)
+    {
+        Console.WriteLine("Eliminando producto");
+        var respuestaHTTP = await repositorio.Delete($"api/producto/{producto.ProductoId}");
+
+        if (respuestaHTTP.Error)
+        {
+            if (respuestaHTTP.HttpResponseMessage.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                var mensajeError = await respuestaHTTP.ObtenerMensajeError();
+                await Swal.FireAsync("Error", mensajeError, SweetAlertIcon.Error);
+            }
+            else
+            {
+
+                navigationManager.NavigateTo("IndexProducto");
+            }
+        }
+        else
+        {
+            await LoadPage();
+        }
+    }
+
+    private async Task LoadPage()
+    {
+        var responseHTTP = await repositorio.Get<List<Producto>>("api/producto");
+        producto = responseHTTP.Response!;
+    }
+
+    public async Task ExportarExcel()
+    {
+        Console.WriteLine("exportando excel");
+        using (var package = new ExcelPackage())
+        {
+
+            var worksheet = package.Workbook.Worksheets.Add("Prodcutos");
+
+
+            worksheet.Cells[1, 1].Value = "ProductoID";
+            worksheet.Cells[1, 2].Value = "Nombre";
+            //worksheet.Cells[1, 3].Value = "Imagen";
+
+
+
+            int row = 2;
+            foreach (var producto in producto)
+            {
+                worksheet.Cells[row, 1].Value = producto.ProductoId;
+                worksheet.Cells[row, 2].Value = producto.Nombre;
+                //worksheet.Cells[row, 3].Value = producto.Foto;
+
+
+                row++;
+            }
+
+            MemoryStream stream = new MemoryStream();
+            package.SaveAs(stream);
+            stream.Position = 0;
+
+            string base64 = Convert.ToBase64String(stream.ToArray());
+            string contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+            string fileName = "Productos.xlsx";
+            await Js.InvokeVoidAsync("BlazorDownloadFile", base64, contentType, fileName);
+
+        }
+    }
+
+
+
+
+}

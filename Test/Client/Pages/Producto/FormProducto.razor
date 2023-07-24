@@ -1,0 +1,65 @@
+﻿@using Test.Shared.Entities;
+<EditForm Model="producto" OnValidSubmit="OnValidSubmitParam">
+    <DataAnnotationsValidator />
+
+    <div class="mb-3">
+        <label>Nombre:</label>
+        <div>
+            <InputText class="form-control" @bind-Value="@producto.Nombre" />
+            <ValidationMessage For="@(()=> producto.Nombre)" />
+        </div>
+    </div>
+    <div class="mb-3">
+        <label>Modelo:</label>
+        <div>
+            <InputNumber class="form-control" @bind-Value="@producto.Modelo" />
+            <ValidationMessage For="@(()=> producto.Modelo)" />
+        </div>
+    </div>
+    <div class="mb-3 form-markdown">
+        <div>
+            <InputMarkdown @bind-Value="@producto.Descripcion" For="(() => producto.Descripcion)" Label="Descripcion" />
+        </div>
+    </div>
+    <div class="mb-3">
+        <label>Precio:</label>
+        <div>
+            <InputNumber class="form-control" @bind-Value="@producto.precio" />
+            <ValidationMessage For="@(()=> producto.precio)" />
+        </div>
+    </div>
+    <div class="mb-3">
+        <InputImg Label="Foto" ImagenSeleccionada="ImagenSeleccionada" ImagenURL="@imagenURL" />
+    </div>
+
+    <button class="btn btn-success">Guardar</button>
+</EditForm>
+@code {
+    string? imagenURL;
+
+    protected override void OnInitialized()
+    {
+        if (!string.IsNullOrEmpty(producto.Foto))
+        {
+            imagenURL = producto.Foto;
+            producto.Foto = null!;
+        }
+    }
+
+    private void ImagenSeleccionada(string imagenBase64)
+    {
+        producto.Foto = imagenBase64;
+        imagenURL = null;
+    }
+
+
+
+    [Parameter]
+    [EditorRequired]
+    public Producto producto { get; set; } = null!;
+    [Parameter]
+    [EditorRequired]
+    public EventCallback OnValidSubmitParam { get; set; }
+
+
+}

@@ -1,20 +1,36 @@
 ﻿@inherits LayoutComponentBase
+@using Microsoft.AspNetCore.Components.Authorization
+@inject AuthenticationStateProvider AuthenticationStateProvider
 
 <div class="page">
-    <div class="sidebar">
-        <MudThemeProvider />
-        <MudDialogProvider />
-        <MudSnackbarProvider />
-        <NavMenu />
-    </div>
-
-    <main>
-        <div class="top-row px-4">
-            <LoginDisplay />
+    <CascadingAuthenticationState>
+        <div class="sidebar">
+            <NavMenu />
         </div>
 
-        <article class="content px-4 bg-light">
-            @Body
-        </article>
-    </main>
+        <main>
+            <div class="top-row px-4">
+                <AuthorizeView>
+                    <Authorized>
+                        <span>Hola, @context.User.Identity!.Name</span>
+                        <a href="Logout" class="nav-link btn btn-link">Log out</a>
+                    </Authorized>
+                    <NotAuthorized>
+                        <div class="top-row px-4">
+                            <a href="Register">Registro</a>
+                            <a href="Login" class="nav-link btn btn-link">Login</a>
+                        </div>
+                    </NotAuthorized>
+                </AuthorizeView>
+            </div>
+            <article class="content px-4">
+                @Body
+            </article>
+        </main>
+    </CascadingAuthenticationState>
 </div>
+
+
+@code {
+
+}

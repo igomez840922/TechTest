@@ -1,50 +1,52 @@
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System;
 using System.Configuration;
 using System.Text;
-using Test.Client.Interfaces;
-using Test.Client.Services;
+using System.Text.Json.Serialization;
+using Test.Server;
+using Test.Server.AuxService;
 using Test.Server.Data;
-using Test.Server.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-var connectionString = builder.Configuration.GetConnectionString("TestServerContext");
-builder.Services.AddDbContext<TestServerContext>(options =>
-    options.UseSqlServer(connectionString));
-
-builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
-    .AddEntityFrameworkStores<TestServerContext>();
-
-var jwtSettings = builder.Configuration.GetSection("JWTSettings");
-// Add Auth and JWT
-builder.Services.AddAuthentication(opt =>
-{
-    opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    opt.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-}).AddJwtBearer(options =>
-{
-    options.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
-
-        ValidIssuer = jwtSettings["validIssuer"],
-        ValidAudience = jwtSettings["validAudience"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["securityKey"]))
-    };
-});
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews().AddJsonOptions(opciones =>
+    opciones.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles); ;
 builder.Services.AddRazorPages();
-builder.Services.AddScoped<IProductServices, ProductServices>();
-builder.Services.AddHttpClient();
+var connectionstring = builder.Configuration.GetConnectionString("DefaultConnection");
+builder.Services.AddDbContext<AppDbContext>(opciones =>
+opciones.UseSqlServer(connectionstring));
+
+builder.Services.AddTransient<ISourceStorage, SourceLocalStorage>();
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddAutoMapper(typeof(Program));
+
+builder.Services.AddIdentity<IdentityUser, IdentityRole>().AddEntityFrameworkStores<AppDbContext>().AddDefaultTokenProviders();
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddCookie(options =>
+{
+    options.LoginPath = "/Login/Register";
+    options.AccessDeniedPath = "/Login/Register";
+}).AddJwtBearer(options => options.TokenValidationParameters = new TokenValidationParameters
+{
+    ValidateIssuer = false,
+    ValidateAudience = false,
+    ValidateLifetime = true,
+    ValidateIssuerSigningKey = true,
+    IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(builder.Configuration["jwtkey"]!)),
+    ClockSkew = TimeSpan.Zero
+});
 
 var app = builder.Build();
 

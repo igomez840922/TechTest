@@ -1,0 +1,16 @@
+﻿@page "/logout"
+@using Test.Client.AuxLogin;
+@inject ILoginservice loginService
+@inject NavigationManager navigationManager
+
+<p>Deslogueando...</p>
+
+@code {
+
+    protected async override Task OnInitializedAsync()
+    {
+        await loginService.Logout();
+        navigationManager.NavigateTo("/");
+    }
+
+}

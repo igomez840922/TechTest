@@ -1,0 +1,59 @@
+﻿@page "/Login"
+@using CurrieTechnologies.Razor.SweetAlert2;
+@using Test.Client.ServiceRepository;
+@using Test.Shared.DTO;
+@using Test.Client.AuxLogin;
+@inject IServiceRepository repositorio
+@inject SweetAlertService swal
+@inject ILoginservice login
+@inject NavigationManager navigationManager
+
+<h3>Login</h3>
+
+<EditForm Model="UserLog" OnValidSubmit="LoginU">
+    <DataAnnotationsValidator />
+
+    <div class="mb-3">
+        <label>Email:</label>
+        <div>
+            <InputText class="form-control" @bind-Value="UserLog.Email" />
+            <ValidationMessage For="@(() => UserLog.Email)" />
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label>Password:</label>
+        <div>
+            <InputText type="password" class="form-control" @bind-Value="UserLog.Password" />
+            <ValidationMessage For="@(() => UserLog.Password)" />
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Login</button>
+</EditForm>
+
+@code {
+
+    private UserRegisterInfo UserLog = new UserRegisterInfo();
+
+    private async Task LoginU()
+    {
+        var httpresponse = await repositorio.Post<UserRegisterInfo, TokenDTO>("api/UserLogs/Login", UserLog);
+
+        if (httpresponse.Error)
+        {
+            var mensajeerror = await httpresponse.ObtenerMensajeError();
+            await swal.FireAsync("error", mensajeerror, SweetAlertIcon.Error);
+        }
+        else
+        {
+            await login.Login(httpresponse.Response!);
+            navigationManager.NavigateTo("IndexProducto");
+            Console.WriteLine("logeado con exito");
+        }
+
+
+
+
+    }
+}

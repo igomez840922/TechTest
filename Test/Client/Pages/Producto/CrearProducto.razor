@@ -1,0 +1,31 @@
+﻿@page "/Producto/CrearProductos"
+@using CurrieTechnologies.Razor.SweetAlert2;
+@using Test.Client.ServiceRepository;
+@using Test.Shared.Entities;
+@inject NavigationManager navigationManager
+@inject IServiceRepository repositorio
+@inject SweetAlertService Swal
+<h3>CrearProducto</h3>
+
+<FormProducto OnValidSubmitParam="CrearP" producto="producto" />
+
+@code {
+    private Producto producto = new Producto();
+
+    async Task CrearP()
+    {
+        var httpResponse = await repositorio.Post("api/producto", producto);
+
+        if (httpResponse.Error)
+        {
+            var mensajeError = await httpResponse.ObtenerMensajeError();
+            await Swal.FireAsync("Error", mensajeError, SweetAlertIcon.Error);
+            Console.WriteLine("hubo un error");
+        }
+        else
+        {
+            navigationManager.NavigateTo("IndexProducto");
+            Console.WriteLine("Se a insertado un producto");
+        }
+    }
+}

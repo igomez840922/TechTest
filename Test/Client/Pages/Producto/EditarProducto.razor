@@ -1,0 +1,63 @@
+﻿@page "/Producto/editarProducto/{ProductoId:int}"
+@using CurrieTechnologies.Razor.SweetAlert2;
+@using Test.Client.ServiceRepository;
+@using Test.Shared.Entities;
+@inject NavigationManager navigationManager
+@inject IServiceRepository repositorio
+@inject SweetAlertService swal
+
+<h3>Editar Producto</h3>
+
+@if (producto is null)
+{
+    <p>Cargando...</p>
+}
+else
+{
+    <FormProducto producto="producto" OnValidSubmitParam="Editar" />
+}
+
+@code {
+    [Parameter] public int ProductoId { get; set; }
+    Producto? producto;
+
+    protected override async Task OnInitializedAsync()
+    {
+        //Console.WriteLine(ProductoId);
+        var respuestaHTTP = await repositorio.Get<Producto>($"api/producto/{ProductoId}");
+
+        if (respuestaHTTP.Error)
+        {
+            if (respuestaHTTP.HttpResponseMessage.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                navigationManager.NavigateTo("IndexProducto");
+            }
+            else
+            {
+                var mensajeError = await respuestaHTTP.ObtenerMensajeError();
+                await swal.FireAsync("Error", mensajeError, SweetAlertIcon.Error);
+            }
+        }
+        else
+        {
+            producto = respuestaHTTP.Response;
+        }
+    }
+
+    private async Task Editar()
+    {
+        Console.WriteLine("ingreso a editar");
+        Console.WriteLine("id a usar:" + ProductoId);
+        var respuestaHTTP = await repositorio.Put("api/producto", producto);
+
+        if (respuestaHTTP.Error)
+        {
+            var mensajeError = await respuestaHTTP.ObtenerMensajeError();
+            await swal.FireAsync("Error", mensajeError, SweetAlertIcon.Error);
+        }
+        else
+        {
+            navigationManager.NavigateTo("IndexProducto");
+        }
+    }
+}

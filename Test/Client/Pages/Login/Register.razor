@@ -1,0 +1,61 @@
+﻿@page "/Register"
+@using CurrieTechnologies.Razor.SweetAlert2;
+@using Test.Client.AuxLogin;
+@using Test.Client.ServiceRepository;
+@using Test.Shared.DTO;
+@inject ILoginservice loginservice
+@inject IServiceRepository repositorio
+@inject SweetAlertService swal
+@inject NavigationManager navigationManager
+
+<h3>Registro</h3>
+
+<EditForm Model="register" OnValidSubmit="CrearUsuario">
+    <DataAnnotationsValidator />
+
+    <div class="mb-3">
+        <label>Email:</label>
+        <div>
+            <InputText class="form-control" @bind-Value="register.Email" />
+            <ValidationMessage For="@(() => register.Email)" />
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label>Password:</label>
+        <div>
+            <InputText type="password" class="form-control" @bind-Value="register.Password" />
+            <ValidationMessage For="@(() => register.Password)" />
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Registrar</button>
+    <a href="Login" class="btn btn-secondary">Ir a Login</a>
+
+</EditForm>
+
+@code {
+    private UserRegisterInfo register = new UserRegisterInfo();
+
+    private async Task CrearUsuario()
+    {
+        Console.WriteLine("creando Usuario");
+        var httpresponse = await repositorio.Post<UserRegisterInfo, TokenDTO>("api/UserLogs/Create", register);
+
+
+        if (httpresponse.Error)
+        {
+            var mensajeError = await httpresponse.ObtenerMensajeError();
+            await swal.FireAsync("Error", mensajeError, SweetAlertIcon.Error);
+            Console.WriteLine("hubo un error");
+        }
+        else
+        {
+            await loginservice.Login(httpresponse.Response!);
+            navigationManager.NavigateTo("/Login");
+            Console.WriteLine("UsuarioCreado");
+        }
+
+    }
+
+}
