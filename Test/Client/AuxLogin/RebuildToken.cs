@@ -18,8 +18,8 @@ namespace Test.Client.AuxLogin
         public void Iniciar()
         {
             timer = new Timer();
-            timer.Interval = 1000 * 60 * 4; // 4 minutos
-            //timer.Interval = 1000 * 5; // 5 segundos
+            //timer.Interval = 1000 * 60 * 4; // 4 minutos
+            timer.Interval = 1000 * 5; // 5 segundos
             timer.Elapsed += Timer_Elapsed;
             timer.Start();
         }

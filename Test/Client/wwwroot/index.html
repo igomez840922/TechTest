@@ -19,6 +19,8 @@
         <a href="" class="reload">Reload</a>
         <a class="dismiss">🗙</a>
     </div>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.0.272/jspdf.debug.js"></script>
+    <script src="Js/PDFLogic.js"></script>
     <script>
         function BlazorDownloadFile(base64String, contentType, fileName) {
             var blob = b64toBlob(base64String, contentType);

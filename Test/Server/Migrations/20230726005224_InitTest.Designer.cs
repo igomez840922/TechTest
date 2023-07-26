@@ -12,8 +12,8 @@ using Test.Server;
 namespace Test.Server.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20230723154358_TestInitM")]
-    partial class TestInitM
+    [Migration("20230726005224_InitTest")]
+    partial class InitTest
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

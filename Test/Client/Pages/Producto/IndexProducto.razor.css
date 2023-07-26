@@ -1,0 +1,8 @@
+﻿.custom-image {
+    width: 60px;
+    height: auto;
+}
+.custom-font {
+    font-family: "Arial", sans-serif; /* Cambia "Arial" por la fuente deseada */
+    font-size: 16px; /* Ajusta el tamaño de la fuente deseado */
+}

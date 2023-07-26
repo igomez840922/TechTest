@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -65,6 +66,18 @@ namespace Test.Server.Controllers
         {
             await HttpContext.SignOutAsync(IdentityConstants.ApplicationScheme);
             return RedirectToAction("Index", "Home");
+        }
+
+        [HttpGet("renovarToken")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public async Task<ActionResult<TokenDTO>> Renovar()
+        {
+            var userInfo = new UserRegisterInfo()
+            {
+                Email = HttpContext.User.Identity!.Name!
+            };
+
+            return await TokenBuilder(userInfo);
         }
 
         private async Task<TokenDTO> TokenBuilder(UserRegisterInfo userInfo)

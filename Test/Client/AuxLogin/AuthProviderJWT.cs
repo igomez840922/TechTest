@@ -71,7 +71,7 @@ namespace Test.Client.AuxLogin
 
         private bool DebeRenovarToken(DateTime tiempoExpiracion)
         {
-            return tiempoExpiracion.Subtract(DateTime.UtcNow) < TimeSpan.FromMinutes(5);
+            return tiempoExpiracion.Subtract(DateTime.UtcNow) < TimeSpan.FromSeconds(30);
         }
 
         public async Task ManejarRenovacionToken()
@@ -102,7 +102,7 @@ namespace Test.Client.AuxLogin
             httpClient.DefaultRequestHeaders.Authorization =
                 new AuthenticationHeaderValue("bearer", token);
 
-            var nuevoTokenResponse = await repositorio.Get<TokenDTO>("api/cuentas/RenovarToken");
+            var nuevoTokenResponse = await repositorio.Get<TokenDTO>("api/UserLogs/renovarToken");
             var nuevoToken = nuevoTokenResponse.Response!;
 
             await js.GuardarEnLocalStorage(TOKENKEY, nuevoToken.Token);

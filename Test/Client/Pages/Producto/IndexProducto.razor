@@ -28,34 +28,21 @@
 <GenericList Listado="producto">
     <HayRegistrosCompleto>
         <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th></th>
-                    <th>Nombre</th>
-                    <th>Modelo</th>
-                    <th>Precio</th>
-                </tr>
-            </thead>
             <tbody>
                 @foreach (var prod in producto!)
                 {
-                    <tr>
-                        <td>
+                    <div class="card mb-3">
+                        <img src="@prod.Foto" class="card-img-top custom-image" alt="@prod.Nombre">
+
+                        <div class="card-body">
+                            <h5 class="card-title custom-font">@prod.Nombre</h5>
+                            <p class="card-text custom-font">Modelo: @prod.Modelo</p>
+                            <p class="card-text custom-font">Precio: @prod.precio</p>
+
                             <a href="Producto/editarProducto/@prod.ProductoId" class="btn btn-success">Editar</a>
-                            <button class="btn btn-danger" @onclick=@(() => Borrar(prod))>
-                                Borrar
-                            </button>
-                        </td>
-                        <td>
-                            @prod.Nombre
-                        </td>
-                        <td>
-                            @prod.Modelo
-                        </td>
-                        <td>
-                            @prod.precio
-                        </td>
-                    </tr>
+                            <button class="btn btn-danger" @onclick=@(() => Borrar(prod))>Borrar</button>
+                        </div>
+                    </div>
                 }
             </tbody>
         </table>
@@ -63,7 +50,7 @@
         @if(producto.Count > 0)
         {
             <button @onclick="ExportarExcel" class="btn btn-success">Exportar a Excel</button>
-            //<button @onclick="ExportarPDF" class="btn btn-success">Exportar a PDF</button>
+            <button @onclick="ExportarPDF" class="btn btn-success">Exportar a PDF</button>
 
         }
         <a id="downloadLink" href="#" style="position: absolute; left: -10000px; top: -10000px;">Descargar</a>
@@ -151,6 +138,13 @@
             await Js.InvokeVoidAsync("BlazorDownloadFile", base64, contentType, fileName);
 
         }
+    }
+
+    private async Task ExportarPDF()
+    {
+        var listaProductos = producto;
+
+        await Js.InvokeVoidAsync("exportToPDF", listaProductos /*loginUser*/);
     }
 
 

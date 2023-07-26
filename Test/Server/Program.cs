@@ -11,7 +11,6 @@ using System.Text;
 using System.Text.Json.Serialization;
 using Test.Server;
 using Test.Server.AuxService;
-using Test.Server.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
