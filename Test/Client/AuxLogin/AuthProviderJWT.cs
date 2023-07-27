@@ -71,7 +71,7 @@ namespace Test.Client.AuxLogin
 
         private bool DebeRenovarToken(DateTime tiempoExpiracion)
         {
-            return tiempoExpiracion.Subtract(DateTime.UtcNow) < TimeSpan.FromSeconds(30);
+            return tiempoExpiracion.Subtract(DateTime.UtcNow) < TimeSpan.FromMinutes(1);
         }
 
         public async Task ManejarRenovacionToken()

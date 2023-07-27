@@ -6,20 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Compile Remove="Pages\Products\**" />
-    <Compile Remove="Pages\User\**" />
-    <Compile Remove="wwwroot\NewFolder\**" />
-    <Content Remove="Pages\Products\**" />
-    <Content Remove="Pages\User\**" />
-    <Content Remove="wwwroot\NewFolder\**" />
-    <EmbeddedResource Remove="Pages\Products\**" />
-    <EmbeddedResource Remove="Pages\User\**" />
-    <EmbeddedResource Remove="wwwroot\NewFolder\**" />
-    <None Remove="Pages\Products\**" />
-    <None Remove="Pages\User\**" />
-    <None Remove="wwwroot\NewFolder\**" />
-  </ItemGroup>
+
 
   <ItemGroup>
     <PackageReference Include="Blazored.LocalStorage" Version="4.3.0" />
