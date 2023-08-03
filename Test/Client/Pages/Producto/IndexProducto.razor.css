@@ -1,9 +1,16 @@
-﻿.custom-image {
-    width: 200px;
+﻿.card-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between; 
+    gap: 10px; 
+}
+
+.custom-image {
+    width: 350px;
     height: auto;
 }
 .custom-font {
-    font-family: "Arial", sans-serif; /* Cambia "Arial" por la fuente deseada */
-    font-size: 16px; /* Ajusta el tamaño de la fuente deseado */
+    font-family: "Arial", sans-serif; 
+    font-size: 16px; 
     color: blue;
 }

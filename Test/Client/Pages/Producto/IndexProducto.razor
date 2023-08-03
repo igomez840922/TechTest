@@ -16,7 +16,7 @@
 <h3>Productos</h3>
 <AuthorizeView>
     <Authorized>
-        <h3>Hola, @context.User.Identity!.Name estos son tus productos</h3>
+        <h3>Hola, @context.User.Identity!.Name estos son los productos</h3>
     </Authorized>
 </AuthorizeView>
 
@@ -31,7 +31,7 @@
             <tbody>
                 @foreach (var prod in producto!)
                 {
-                    <div class="card mb-3">
+                    <div class="card mb-3 card-container">
                         <img src="@prod.Foto" class="card-img-top custom-image" alt="@prod.Nombre">
 
                         <div class="card-body">
