@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Components;
-using Test.Shared.Entities.DataBase;
-using Test.Shared.Entities;
+using Test.Shared.Entities.DTO;
+using Mapster;
 
 namespace Test.Client.Pages.Products
 {
@@ -10,7 +10,7 @@ namespace Test.Client.Pages.Products
         private bool IsNew;
         private List<string> ImgList { get; set; } = new List<string>();
         private const int maxImageSize = 2 * 1024 * 1024;
-        private Product product = new();
+        private ProductResponse? product = new();
 
         [Parameter]
         public string? id { get; set; }
@@ -33,15 +33,15 @@ namespace Test.Client.Pages.Products
 
         private async Task OnSubmit()
         {
-            AppResult result = new AppResult();
+            var productRequest = product.Adapt<ProductRequest>();
 
             if (IsNew)
             {
-                result = await productServices.AddProduct(product);
+                await productServices.AddProduct(productRequest);
             }
             else
             {
-                result = await productServices.UpdateProduct(product);
+                await productServices.UpdateProduct(id, productRequest);
             }
 
             NavigationManager.NavigateTo("/product");
@@ -64,16 +64,18 @@ namespace Test.Client.Pages.Products
             loading = true;
             try
             {
-                using var stream = file.OpenReadStream();
-                using var ms = new MemoryStream();
-                await stream.CopyToAsync(ms);
-                product.Photo = ($"data:{file.ContentType};base64,{Convert.ToBase64String(ms.ToArray())}");
+                if (product is not null)
+                {
+                    using var stream = file.OpenReadStream();
+                    using var ms = new MemoryStream();
+                    await stream.CopyToAsync(ms);
+                    product.Photo = ($"data:{file.ContentType};base64,{Convert.ToBase64String(ms.ToArray())}");
+                }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
             }
             loading = false;
-            //TODO upload the files to the server
         }
     }
 }

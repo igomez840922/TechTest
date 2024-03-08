@@ -1,6 +1,9 @@
+using Mapster;
+using MapsterMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.Reflection;
 using System.Text;
 using Test.Client.Interfaces;
 using Test.Client.Services;
@@ -17,6 +20,11 @@ builder.Services
 builder.Services
     .AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddEntityFrameworkStores<TestServerContext>();
+
+var config = TypeAdapterConfig.GlobalSettings;
+config.Scan(Assembly.GetExecutingAssembly());
+builder.Services.AddSingleton(config);
+builder.Services.AddScoped<IMapper, Mapper>();
 
 var jwtSettings = builder.Configuration.GetSection("JWTSettings");
 // Add Auth and JWT

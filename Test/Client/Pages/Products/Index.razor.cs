@@ -1,11 +1,10 @@
-﻿using Test.Shared.Entities.DataBase;
-using Test.Shared.Entities;
+﻿using Test.Shared.Entities.DTO;
 
 namespace Test.Client.Pages.Products
 {
     public partial class Index
     {
-        private List<Product> productList { get; set; } = new List<Product>();
+        private List<ProductResponse> productList { get; set; } = new List<ProductResponse>();
 
         protected override async Task OnInitializedAsync()
         {
@@ -18,11 +17,7 @@ namespace Test.Client.Pages.Products
         private async Task GetProductList()
         {
             productList.Clear();
-            var productItems = await productServices.GetAllProduct();
-            foreach (var item in productItems)
-            {
-                productList.Add(item);
-            }
+            productList = await productServices.GetAllProduct();
         }
 
         private async Task DeleteProduct(string id)

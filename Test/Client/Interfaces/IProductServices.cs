@@ -1,14 +1,14 @@
 ﻿using Test.Shared.Entities;
-using Test.Shared.Entities.DataBase;
+using Test.Shared.Entities.DTO;
 
 namespace Test.Client.Interfaces
 {
     public interface IProductServices
     {
-        Task<List<Product>> GetAllProduct();
-        Task<Product?> GetProductById(string id);
+        Task<List<ProductResponse>> GetAllProduct();
+        Task<ProductResponse?> GetProductById(string id);
         Task <AppResult?> DeleteProduct(string id);
-         Task <AppResult> AddProduct(Product product);
-        Task <AppResult> UpdateProduct(Product product);                   
+         Task <AppResult> AddProduct(ProductRequest product);
+        Task <AppResult> UpdateProduct(string id, ProductRequest product);                   
     }
 }

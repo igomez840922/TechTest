@@ -14,12 +14,11 @@ namespace Test.Server.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-           // modelBuilder.ConfigurePersistedGrantContext(_operationalStoreOptions.Value);
             modelBuilder.Entity<Product>().Property("Id").HasDefaultValueSql("Newid()");
         }
 
-        public DbSet<ApplicationUser>? AspNetUsers { get; set; }
+        public DbSet<ApplicationUser> AspNetUsers { get; set; }
 
-        public DbSet<Product>? Product { get; set; }
+        public DbSet<Product> Product { get; set; }
     }
 }

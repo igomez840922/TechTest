@@ -1,8 +1,10 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Mapster;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Test.Server.Data;
 using Test.Shared.Entities.DataBase;
+using Test.Shared.Entities.DTO;
 
 namespace Test.Server.Controllers
 {
@@ -20,61 +22,68 @@ namespace Test.Server.Controllers
 
         // GET: api/Products
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Product>>> GetAllProducts()
+        public async Task<ActionResult<IEnumerable<ProductResponse>>> GetAllProducts()
         {
-          if (_context.Product == null)
-          {
-              return NotFound();
-          }
-            var ProducList = _context.Product.Where(x => x.Name.ToLower()== x.Name.ToLower()).ToList();
-            return Ok(ProducList);
+            try
+            {
+                var products = await _context.Product.ToListAsync();
+                var producList = products.Adapt<IEnumerable<ProductResponse>>();
 
+                return Ok(producList);
+            }
+            catch
+            {
+                throw;
+            }
         }
 
         // GET: api/Products/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Product>> GetProduct(string id)
+        public async Task<ActionResult<ProductResponse>> GetProduct(string id)
         {
-          if (_context.Product == null)
-          {
-              return NotFound();
-          }
-            var product = await _context.Product.FindAsync(id);
-
-            if (product == null)
+            try
             {
-                return NotFound();
-            }
+                var product = await _context.Product.FindAsync(id);
 
-            return product;
+                if (product is null)
+                {
+                    return NotFound();
+                }
+
+                return product.Adapt<ProductResponse>();
+            }
+            catch
+            {
+                throw;
+            }
         }
 
         // PUT: api/Products/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutProduct(string id, Product product)
+        public async Task<IActionResult> PutProduct(string id, ProductRequest productRequest)
         {
-            if (id != product.Id)
-            {
-                return NoContent();
-            }
-
-            _context.Entry(product).State = EntityState.Modified;
-
             try
             {
+                var product = await _context.Product.FindAsync(id);
+
+                if (product is null)
+                {
+                    return NotFound();
+                }
+
+                product.Description = productRequest.Description;
+                product.Photo = productRequest.Photo;
+                product.Name = productRequest.Name;
+                product.Price = productRequest.Price;
+                product.Model = productRequest.Model;
+
+                _context.Update(product);
                 await _context.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!ProductExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                throw;
             }
 
             return Ok();
@@ -83,22 +92,27 @@ namespace Test.Server.Controllers
         // POST: api/Products
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Product>> PostProduct(Product product)
+        public async Task<ActionResult<ProductResponse>> PostProduct(ProductRequest productRequest)
         {
-          if (_context.Product == null)
-          {
-              return Problem("Entity set 'TestServerContext.Product'  is null.");
-          }
-          var data =  _context.Product.Add(product);
-            var result = await _context.SaveChangesAsync();
-            if (result > 0)
+            try
             {
-                product = _context.Product.Where(x => x.Id.ToLower() == product.Id.ToLower()).FirstOrDefault();
-                return Ok(product);
+                var product = productRequest.Adapt<Product>();
+                _context.Product.Add(product);
+                var result = await _context.SaveChangesAsync();
+
+                if (result > 0)
+                {
+                    var productResponse = product.Adapt<ProductResponse>();
+                    return Ok(productResponse);
+                }
+                else
+                {
+                    return StatusCode(500, "table could not be created");
+                }
             }
-            else
+            catch
             {
-                return StatusCode(500, "table could not be created");
+                throw;
             }
         }
 
@@ -106,25 +120,23 @@ namespace Test.Server.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProduct(string id)
         {
-            if (_context.Product == null)
+            try
             {
-                return NotFound();
+                var product = await _context.Product.FindAsync(id);
+                if (product is null)
+                {
+                    return NotFound();
+                }
+
+                _context.Product.Remove(product);
+                await _context.SaveChangesAsync();
+
+                return Ok();
             }
-            var product = await _context.Product.FindAsync(id);
-            if (product == null)
+            catch
             {
-                return NotFound();
+                throw;
             }
-
-            _context.Product.Remove(product);
-            await _context.SaveChangesAsync();
-
-            return Ok();
-        }
-
-        private bool ProductExists(string id)
-        {
-            return (_context.Product?.Any(e => e.Id == id)).GetValueOrDefault();
         }
     }
 }

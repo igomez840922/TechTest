@@ -3,7 +3,7 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using Test.Client.Interfaces;
 using Test.Shared.Entities;
-using Test.Shared.Entities.DataBase;
+using Test.Shared.Entities.DTO;
 
 namespace Test.Client.Services
 {
@@ -18,10 +18,10 @@ namespace Test.Client.Services
             _navigationManager = navigationManager;
         }
 
-        public async Task<AppResult> AddProduct(Product product)
+        public async Task<AppResult> AddProduct(ProductRequest product)
         {
             AppResult result = new AppResult();
-            if (product == null)
+            if (product is null)
             {
                 result.Result = AppResultStatus.Failed;
                 result.Message = "Product is null";
@@ -29,7 +29,6 @@ namespace Test.Client.Services
             }
             try
             {
-                product.Id = Guid.NewGuid().ToString();
                 var response = await _http.PostAsJsonAsync("api/Products", product);
                 string content = await response.Content.ReadAsStringAsync();
                 response.EnsureSuccessStatusCode();
@@ -53,7 +52,7 @@ namespace Test.Client.Services
             AppResult deltedResult = new();
             var existingProduct = GetProductById(id);
 
-            if (existingProduct == null)
+            if (existingProduct is null)
             {
                 deltedResult.Result = AppResultStatus.InternalError;
                 deltedResult.Message = "product is not fount";
@@ -86,7 +85,7 @@ namespace Test.Client.Services
             return deltedResult;
         }
 
-        public async Task<Product?> GetProductById(string id)
+        public async Task<ProductResponse?> GetProductById(string id)
         {
             var response = await _http.GetAsync($"api/Products/{id}");
             string content = await response.Content.ReadAsStringAsync();
@@ -103,7 +102,7 @@ namespace Test.Client.Services
                 {
                     PropertyNameCaseInsensitive = true,
                 };
-                var product = JsonSerializer.Deserialize<Product>(content, options);
+                var product = JsonSerializer.Deserialize<ProductResponse>(content, options);
                 return product;
             }
             catch (Exception)
@@ -112,19 +111,19 @@ namespace Test.Client.Services
             }
         }
 
-        public async Task<AppResult> UpdateProduct(Product product)
+        public async Task<AppResult> UpdateProduct(string id, ProductRequest product)
         {
             AppResult updatedResult = new();
-            var existingProduct = await GetProductById(product?.Id ?? string.Empty);
+            var existingProduct = await GetProductById(id ?? string.Empty);
 
-            if (existingProduct == null)
+            if (existingProduct is null)
             {
                 updatedResult.Result = AppResultStatus.InternalError;
                 updatedResult.Message = "product is not fount";
                 return updatedResult;
             }
 
-            var response = await _http.PutAsJsonAsync($"api/Products/{product?.Id}", product);
+            var response = await _http.PutAsJsonAsync($"api/Products/{id}", product);
 
             if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
             {
@@ -150,9 +149,9 @@ namespace Test.Client.Services
             return updatedResult;
         }
 
-        public async Task<List<Product>> GetAllProduct()
+        public async Task<List<ProductResponse>> GetAllProduct()
         {
-            var list = new List<Product>();
+            var list = new List<ProductResponse>();
 
             try
             {
@@ -175,8 +174,8 @@ namespace Test.Client.Services
                     PropertyNameCaseInsensitive = true,
                 };
 
-                var obj = JsonSerializer.Deserialize<IEnumerable<Product>>(content, options);
-                list = obj?.ToList() ?? new List<Product>();
+                var obj = JsonSerializer.Deserialize<IEnumerable<ProductResponse>>(content, options);
+                list = obj?.ToList() ?? new List<ProductResponse>();
             }
             catch (Exception)
             {

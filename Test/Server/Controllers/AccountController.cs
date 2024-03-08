@@ -18,6 +18,7 @@ namespace Test.Server.Controllers
         private UserManager<ApplicationUser> _userManager;
         private readonly IConfiguration _configuration;
         private readonly IConfigurationSection _jwtSettings;
+
         public AccountController(ILogger<AccountController> logger, UserManager<ApplicationUser> userManager, IConfiguration configuration)
         {
             _configuration = configuration;
@@ -32,7 +33,7 @@ namespace Test.Server.Controllers
         public async Task<IActionResult> Login([FromBody] UserAuthenticationRequest authUser)
         {
             var user = await _userManager.FindByNameAsync(authUser.Email);
-            if (user == null || !await _userManager.CheckPasswordAsync(user, authUser.Password))
+            if (user is null || !await _userManager.CheckPasswordAsync(user, authUser.Password))
                 return Unauthorized(new AuthenticationResponse { ErrorMessage = "Authentication not valid" });
             var signingCredentials = GetUserCredentials();
             var claims = GetClaims(user);
@@ -40,10 +41,11 @@ namespace Test.Server.Controllers
             var token = new JwtSecurityTokenHandler().WriteToken(tokenOptions);
             return Ok(new AuthenticationResponse { IsAuthSuccessful = true, Token = token });
         }
+
         [HttpPost("Register")]
         public async Task<IActionResult> RegisterUser([FromBody] UserRegisterRequest regUser)
         {
-            if (regUser == null || !ModelState.IsValid)
+            if (regUser is null || !ModelState.IsValid)
                 return BadRequest();
 
             var user = new ApplicationUser { UserName = regUser.Email, Email = regUser.Email };
@@ -58,6 +60,7 @@ namespace Test.Server.Controllers
 
             return StatusCode(201);
         }
+
         private SigningCredentials GetUserCredentials()
         {
             var key = Encoding.UTF8.GetBytes(_jwtSettings["securityKey"]);
@@ -65,6 +68,7 @@ namespace Test.Server.Controllers
 
             return new SigningCredentials(secret, SecurityAlgorithms.HmacSha256);
         }
+
         private List<Claim> GetClaims(IdentityUser user)
         {
             var claims = new List<Claim>{
@@ -73,6 +77,7 @@ namespace Test.Server.Controllers
 
             return claims;
         }
+
         private JwtSecurityToken GenerateTokenOptions(SigningCredentials signingCredentials, List<Claim> claims)
         {
             var tokenOptions = new JwtSecurityToken(
