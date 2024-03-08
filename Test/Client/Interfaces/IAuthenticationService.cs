@@ -6,6 +6,6 @@ namespace Test.Client.Interfaces
     {
         Task<RegisterResponse> RegisterUser(UserRegisterRequest userAuthentication);
         Task<AuthenticationResponse> Login(UserAuthenticationRequest userAuthentication);
-        Task Logout();
+        Task<bool> Logout();
     }
 }

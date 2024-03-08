@@ -11,11 +11,16 @@ namespace Test.Client.Feautres
             var payload = jwt.Split('.')[1];
 
             var jsonBytes = ParseBase64WithoutPadding(payload);
-
             var keyValuePairs = JsonSerializer.Deserialize<Dictionary<string, object>>(jsonBytes);
-            claims.AddRange(keyValuePairs.Select(kvp => new Claim(kvp.Key, kvp.Value.ToString())));
+
+            if (keyValuePairs is not null && keyValuePairs.Count > 0 )
+            {
+                claims.AddRange(keyValuePairs.Select(kvp => new Claim(kvp.Key, kvp.Value?.ToString() ?? string.Empty)));
+            }
+            
             return claims;
         }
+
         private static byte[] ParseBase64WithoutPadding(string base64)
         {
             switch (base64.Length % 4)

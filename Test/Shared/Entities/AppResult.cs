@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Test.Shared.Entities
+﻿namespace Test.Shared.Entities
 {
     public enum AppResultStatus
     {
@@ -12,6 +6,7 @@ namespace Test.Shared.Entities
         Failed,
         InternalError
     }
+
     public class AppResult
     {
         public AppResult()
@@ -28,7 +23,9 @@ namespace Test.Shared.Entities
 
         public static AppResult Success = new AppResult("OK", AppResultStatus.Ok);
         public static AppResult Failed = new AppResult("Error", AppResultStatus.Failed);
+
         public string Message { get; set; }
+
         public AppResultStatus Result { get; set; }
 
         public bool IsOk

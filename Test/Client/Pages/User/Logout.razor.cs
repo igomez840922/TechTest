@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Test.Client.Interfaces;
-using Test.Shared.Entities.DTO;
 
 namespace Test.Client.Pages.User
 {
@@ -8,16 +7,30 @@ namespace Test.Client.Pages.User
     {
 
         [Inject]
-        public IAuthenticationService? AuthenticationService { get; set; }
+        private IAuthenticationService? AuthenticationService { get; set; }
+
         [Inject]
-        public NavigationManager? NavigationManager { get; set; }
-        public bool ShowAuthError { get; set; }
-        public string? Error { get; set; }
+        private NavigationManager? NavigationManager { get; set; }
+
+        private bool ShowAuthError { get; set; }
+
+        private string? Error { get; set; }
 
         protected override async Task OnInitializedAsync()
         {
-            await AuthenticationService?.Logout();
-            NavigationManager?.NavigateTo("/");
+            ShowAuthError = false;
+
+            var result = await AuthenticationService?.Logout();
+
+            if (!result)
+            {
+                Error = "Something went wrong";
+                ShowAuthError = true;
+            }
+            else
+            {
+                NavigationManager?.NavigateTo("/");
+            }
         }
     }
 }

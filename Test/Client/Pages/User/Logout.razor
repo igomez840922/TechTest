@@ -1,1 +1,16 @@
 ﻿@page "/Logout"
+
+<div class="p-4 w-100">
+    @if (ShowAuthError)
+    {
+        <hr />
+        <MudText Color="@Color.Error" Class="m-4">
+            @if (ShowAuthError)
+            {
+                <div class="alert alert-danger" role="alert">
+                    <p>@Error</p>
+                </div>
+            }
+        </MudText>
+    }
+</div>

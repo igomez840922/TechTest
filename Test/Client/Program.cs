@@ -1,6 +1,5 @@
 using Blazored.Modal;
 using Microsoft.AspNetCore.Components.Web;
-using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Test.Client;
 using Test.Client.Interfaces;

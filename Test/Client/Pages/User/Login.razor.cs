@@ -9,13 +9,16 @@ namespace Test.Client.Pages.User
         private UserAuthenticationRequest _loginModel = new UserAuthenticationRequest();
 
         [Inject]
-        public IAuthenticationService AuthenticationService { get; set; }
-        [Inject]
-        public NavigationManager NavigationManager { get; set; }
-        public bool ShowAuthError { get; set; }
-        public string? Error { get; set; }
+        private IAuthenticationService AuthenticationService { get; set; }
 
-        public async Task ExecuteLogin()
+        [Inject]
+        private NavigationManager NavigationManager { get; set; }
+
+        private bool ShowAuthError { get; set; }
+
+        private string? Error { get; set; }
+
+        private async Task ExecuteLogin()
         {
             ShowAuthError = false;
 

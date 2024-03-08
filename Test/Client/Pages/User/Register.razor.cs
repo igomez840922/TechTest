@@ -9,13 +9,18 @@ namespace Test.Client.Pages.User
         private UserRegisterRequest _registerModel = new UserRegisterRequest();
 
         [Inject]
-        public IAuthenticationService AuthenticationService { get; set; }
+        private IAuthenticationService AuthenticationService { get; set; }
+
         [Inject]
-        public NavigationManager NavigationManager { get; set; }
-        public bool ShowRegistrationErros { get; set; }
-        public IEnumerable<string> Errors { get; set; } = new List<string>();
-        public bool success { get; set; }
-        public async Task RegisterUser()
+        private NavigationManager NavigationManager { get; set; }
+
+        private bool ShowRegistrationErros { get; set; }
+
+        private IEnumerable<string> Errors { get; set; } = new List<string>();
+
+        private bool success { get; set; }
+
+        private async Task RegisterUser()
         {
             ShowRegistrationErros = false;
 

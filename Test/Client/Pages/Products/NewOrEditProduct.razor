@@ -33,12 +33,9 @@
                         <MudTextField T="string" For="@(() => product.Description)" Label="Description" Variant="Variant.Outlined" Text="@product.Model" Class="m-3" Lines="3" />
                     </div>
                     <div class="form-group">
-                        @*                <InputNumber @bind-Value="product.Price" class="form-control" />
-                        <ValidationMessage  />*@
                         <MudNumericField @bind-Value="@product.Price" For="@(() => product.Price)" Label="Price" Variant="Variant.Outlined" Class="m-3" />
                     </div>
                     <div class="form-group">
-                        @*<p>Select a file <InputFile OnChange="@LoadFiles" accept=".png,.bmp,.jpg,.jpeg" /></p>*@
                         <MudText>Select a file:</MudText>
                         <MudFileUpload T="IBrowserFile" FilesChanged="LoadFile" Class="m-3" Label="Photo">
                             <ButtonTemplate Context="cotx">
@@ -88,75 +85,3 @@
         </MudCard>
     </div>
 </div>
-@code {
-
-    MarkupString ValidationString;
-    [Parameter]
-    public string? id { get; set; }
-    private Product product = new Product();
-    [Parameter]
-    public EventCallback<object?> ProductCallback { get; set; }
-    private bool loading;
-    private bool IsNew;
-    public List<string> ImgList { get; set; } = new List<string>();
-    private const int maxImageSize = 2 * 1024 * 1024;
-    protected override async Task OnInitializedAsync()
-    {
-        // Obtener el ID del producto desde los parámetros de ruta
-
-        //StringValues query;
-        //var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
-        //if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("id", out query))
-        //{
-        //    id = query.ToString();
-        //}
-        IsNew = true;
-        if (!string.IsNullOrEmpty(id))
-        {
-            IsNew = false;
-            // Si se proporciona un ID válido, obtener los datos del producto
-            product = await productServices.GetProductById(id);
-        }
-
-    }
-    public async Task OnSubmit()
-    {
-        AppResult result = new AppResult();
-        if (IsNew)
-            result = await productServices.AddProduct(product);
-        else
-        {
-            result = await productServices.UpdateProduct(product);
-        }
-        NavigationManager.NavigateTo("/product");
-        await ProductCallback.InvokeAsync(product);
-
-    }
-    async Task OnChangeImage(InputFileChangeEventArgs e)
-    {
-        foreach (var archivo in e.GetMultipleFiles())
-        {
-            using var stream = archivo.OpenReadStream(maxImageSize);
-            using var ms = new MemoryStream();
-            await stream.CopyToAsync(ms);
-            ImgList.Add($"data:{archivo.ContentType};base64,{Convert.ToBase64String(ms.ToArray())}");
-        }
-    }
-    private async Task LoadFile(IBrowserFile file)
-    {
-        loading = true;
-        try
-        {
-            using var stream = file.OpenReadStream();
-            using var ms = new MemoryStream();
-            await stream.CopyToAsync(ms);
-            product.Photo = ($"data:{file.ContentType};base64,{Convert.ToBase64String(ms.ToArray())}");
-        }
-        catch (Exception ex)
-        {
-        }
-        loading = false;
-        //TODO upload the files to the server
-    }
-}
-
