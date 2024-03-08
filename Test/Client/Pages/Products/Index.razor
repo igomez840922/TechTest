@@ -9,6 +9,13 @@
 @inject IProductServices productServices
 @inject NavigationManager NavigationManager
 @inject IModalService modal
+
+<style>
+    .my-custom-class {
+        backdrop-filter: blur(10px);
+    }
+</style>
+
 <div class="container">
 
     <MudText Typo="Typo.h3" class="p-3 text-center">Products</MudText>
@@ -70,7 +77,7 @@
                                 <TemplateColumn CellClass="d-flex justify-end">
                                     <CellTemplate Context="ctx">
                                         <MudStack Row>
-                                        <MudFab Color="Color.Info" StartIcon="@Icons.Material.Filled.Details" Size="Size.Small" @onclick="@(() => NavigationManager.NavigateTo($"product/NewOrEdit/{ctx.Item.Id}"))" />
+                                        <MudFab Color="Color.Info" StartIcon="@Icons.Material.Filled.Details" Size="Size.Small" @onclick="@(() => OpenProductDetailModel(ctx.Item))" />
                                         <MudFab Color="Color.Warning" StartIcon="@Icons.Material.Filled.Edit" Size="Size.Small" @onclick="@(() => NavigationManager.NavigateTo($"product/NewOrEdit/{ctx.Item.Id}"))" />
                                         <MudFab Color="Color.Secondary" StartIcon="@Icons.Material.Filled.DeleteForever" Size="Size.Small" @onclick="@(() => DeleteProduct(ctx?.Item?.Id ?? string.Empty))" />
                                         </MudStack>

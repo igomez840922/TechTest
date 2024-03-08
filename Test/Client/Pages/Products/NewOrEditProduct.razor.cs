@@ -13,7 +13,7 @@ namespace Test.Client.Pages.Products
         private ProductResponse? product = new();
 
         [Parameter]
-        public string? id { get; set; }
+        public string? Id { get; set; } = string.Empty;
 
         [Parameter]
         public EventCallback<object?> ProductCallback { get; set; }
@@ -23,11 +23,11 @@ namespace Test.Client.Pages.Products
         protected override async Task OnInitializedAsync()
         {
             IsNew = true;
-            if (!string.IsNullOrEmpty(id))
+            if (!string.IsNullOrEmpty(Id))
             {
                 IsNew = false;
                 // Si se proporciona un ID válido, obtener los datos del producto
-                product = await productServices.GetProductById(id);
+                product = await productServices.GetProductById(Id);
             }
         }
 
@@ -41,7 +41,7 @@ namespace Test.Client.Pages.Products
             }
             else
             {
-                await productServices.UpdateProduct(id, productRequest);
+                await productServices.UpdateProduct(Id, productRequest);
             }
 
             NavigationManager.NavigateTo("/product");
