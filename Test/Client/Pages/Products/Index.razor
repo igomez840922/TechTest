@@ -26,7 +26,9 @@
 
                 <div class="w-100">
                     <div class="w-100">
-                        <MudFab Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" Class="float-end" OnClick="async ()=>await OpenProductModal(null)" />
+                        <MudFab Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" Class="float-end" OnClick="()=>OpenProductModal()" />
+                        <MudFab StartIcon="@Icons.Material.Filled.ImportExport" Class="float-end" OnClick="async ()=> await GenerateExcel(productList)">Create XLSX</MudFab>
+                        <br />
                     </div>
 
                     <hr />
@@ -51,8 +53,6 @@
 
                                     </MudStack>
                                 </CellTemplate>
-
-
                             </PropertyColumn>
                             <PropertyColumn Property="x => x.Price">
                                     <TemplateColumn CellClass="d-flex justify-end">

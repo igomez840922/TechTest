@@ -5,7 +5,6 @@ namespace Test.Client.Pages.User
 {
     public partial class Logout
     {
-
         [Inject]
         private IAuthenticationService? AuthenticationService { get; set; }
 

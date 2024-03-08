@@ -1,6 +1,10 @@
-﻿using Microsoft.AspNetCore.Components;
+﻿using ClosedXML.Excel;
+using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
 using MudBlazor;
 using System;
+using System.Collections.Generic;
+using Test.Shared;
 using Test.Shared.Entities.DTO;
 
 namespace Test.Client.Pages.Products
@@ -17,8 +21,6 @@ namespace Test.Client.Pages.Products
             await GetProductList();
 
         }
-
-        async Task OnProductChangedCallback(object? product) { }
 
         private async Task GetProductList()
         {
@@ -47,7 +49,43 @@ namespace Test.Client.Pages.Products
             }
         }
 
-        async Task OpenProductModal(string id) => NavigationManager.NavigateTo($"product/NewOrEdit/{id}");
+        [Inject]
+        private IJSRuntime Js {  get; set; }
+
+        private async Task GenerateExcel(List<ProductResponse> productResponses)
+        {
+            string filename = "export.xlsx";
+            var XLSStream = ExportToExcel(productResponses).Result;
+
+            await Js.InvokeVoidAsync("BlazorDownloadFile", filename, XLSStream);
+        }
+
+        private Task<byte[]> ExportToExcel(List<ProductResponse> productResponses)
+        {
+            var wb = new XLWorkbook();
+
+            var ws = wb.Worksheets.Add("Weather Forecast");
+
+            ws.Cell(1, 1).Value = "Name";
+            ws.Cell(1, 2).Value = "Model";
+            ws.Cell(1, 3).Value = "Description";
+            ws.Cell(1, 4).Value = "Price";
+
+            for (int row = 0; row < productResponses.Count; row++)
+            {
+                ws.Cell(row + 1, 1).Value = productResponses[row].Name;
+                ws.Cell(row + 1, 2).Value = productResponses[row].Model;
+                ws.Cell(row + 1, 3).Value = productResponses[row].Description;
+                ws.Cell(row + 1, 3).Value = productResponses[row].Price;
+            }
+
+            MemoryStream XLSStream = new();
+            wb.SaveAs(XLSStream);
+
+            return Task.FromResult(XLSStream.ToArray());
+        }
+
+        void OpenProductModal(string? id = null) => NavigationManager.NavigateTo($"product/NewOrEdit/{id}");
 
         async Task OpenProductDetailModel(ProductResponse product)
         {
