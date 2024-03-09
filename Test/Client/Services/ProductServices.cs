@@ -6,6 +6,8 @@ using Test.Client.Interfaces;
 using Test.Client.Pages;
 using Test.Shared.Entities;
 using Test.Shared.Entities.DataBase;
+using ClosedXML.Excel;
+
 namespace Test.Client.Services
 {
     public class ProductServices : IProductServices
@@ -171,10 +173,78 @@ namespace Test.Client.Services
             }
             catch (Exception ex)
             {
-
+                var cv = ex;
             }
 
             return list;
+        }
+
+        public async Task<byte[]> ExportAllToExcel()
+        {
+            var list = new List<Product>();
+            try
+            {
+                if (!Http.DefaultRequestHeaders.Authorization.Parameter.Contains("ey") || Http.DefaultRequestHeaders.Authorization == null)
+                {
+                    await Task.Delay(1000);
+                }
+                var response = await Http.GetAsync($"api/Products");
+                string content = await response.Content.ReadAsStringAsync();
+                if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                {
+                    NavigationManager.NavigateTo("/logout");
+                }
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true,
+                };
+
+                var obj = JsonSerializer.Deserialize<IEnumerable<Product>>(content, options);
+                foreach (var item in obj)
+                {
+                    list.Add(item);
+                }
+            }
+            catch (Exception ex)
+            {
+                var cv = ex;
+            }
+
+            // Create a new workbook
+            using (var workbook = new XLWorkbook())
+            {
+                // Create a new worksheet
+                var worksheet = workbook.Worksheets.Add("Products");
+
+                // Write the header row
+                worksheet.Cell(1, 1).Value = "Product Id";
+                worksheet.Cell(1, 2).Value = "Product Name";
+                worksheet.Cell(1, 3).Value = "Product Description";
+                worksheet.Cell(1, 4).Value = "Product Price";
+
+                // Write the data rows
+                int row = 2;
+                foreach (Product product in list)
+                {
+                    worksheet.Cell(row, 1).Value = product.Id;
+                    worksheet.Cell(row, 2).Value = product.Name;
+                    worksheet.Cell(row, 3).Value = product.Description;
+                    worksheet.Cell(row, 4).Value = product.Price;
+                    row++;
+                }
+
+                // Save the workbook to a memory stream
+                using (var memoryStream = new MemoryStream())
+                {
+                    workbook.SaveAs(memoryStream);
+                    return memoryStream.ToArray();
+                }
+            }
+        }
+
+        public Task<byte[]> ExportAllToPdf()
+        {
+            throw new NotImplementedException();
         }
     }
 }

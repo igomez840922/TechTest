@@ -20,7 +20,10 @@
                 <div class="w-100">
                     <div class="w-100">
                         <MudFab Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" Class="float-end" OnClick="async ()=>await OpenProductModal(null)" />
+                        <MudFab Color="Color.Error" StartIcon="@Icons.Material.Filled.PictureAsPdf" Class="float-end" OnClick="async ()=>await ExportToPdf()" />
+                        <MudFab Color="Color.Success" StartIcon="@Icons.Material.Filled.TableRows" Class="float-end" OnClick="async ()=>await ExportToExcel()" />
                     </div>
+
 
                     <hr />
                     <MudDataGrid Items="@productList" Filterable="false" SortMode="@SortMode.None" Groupable="false">
@@ -30,7 +33,7 @@
                                 <CellTemplate Context="ctx">
                                     <MudStack Row>
 
-                                        <MudIcon Icon="@Icons.Material.Filled.Shield" Size=Size.Medium Title="Name and model" />
+                                        <img style="max-width:200px;max-height:200px" src="@ctx.Item.Photo" />
 
                                         <div class="row">
                                             <div class="row">
@@ -62,12 +65,12 @@
                                         <CellTemplate Context="ctx">
                                             <MudStack Row>
                                                 <MudIcon Icon="@Icons.Material.Filled.AttachFile" Title="Photo" />
-
+                                                <MudText Typo="Typo.h4"> @ctx.Item.Description</MudText>
                                             </MudStack>
                                         </CellTemplate>
                                     </TemplateColumn>
                             </PropertyColumn>
-                                <TemplateColumn CellClass="d-flex justify-end">
+                                <TemplateColumn CellClass="justify-end">
                                     <CellTemplate Context="ctx">
                                         <MudStack Row>
                                             @*                                 <MudRating Size="@Size.Small" SelectedValue="@context.Item.Rating" />
@@ -94,15 +97,6 @@
     Product productItem { get; set; } = new Product();
     public List<Product> productList { get; set; } = new List<Product>();
 
-    protected override async Task OnInitializedAsync()
-    {
-        await GetProductList();
-
-    }
-    async Task OnProductChangedCallback(object? product)
-    {
-
-    }
     public async Task GetProductList()
     {
         productList.Clear();
@@ -112,6 +106,36 @@
             productList.Add(item);
         }
     }
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        await GetProductList();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await GetProductList();
+            StateHasChanged();
+        }
+
+
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+
+    }
+
+
+
+    async Task OnProductChangedCallback(object? product)
+    {
+
+    }
+
     public async Task DeleteProduct(string id)
     {
         AppResult appResult = new AppResult();
@@ -137,6 +161,19 @@
     {
 
         NavigationManager.NavigateTo($"product/NewOrEdit/{id}");
+    }
+
+    async Task ExportToPdf()
+    {
+        AppResult appResult = new AppResult();
+        var result = await productServices.ExportAllToExcel();
+
+    }
+
+    async Task ExportToExcel()
+    {
+        AppResult appResult = new AppResult();
+        var result = await productServices.ExportAllToExcel();
     }
 
 }

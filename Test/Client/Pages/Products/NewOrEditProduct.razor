@@ -30,7 +30,7 @@
                         <MudTextField @bind-Value="product.Model" For="@(() => product.Model)" Label="Model" Variant="Variant.Outlined" Class="m-3"></MudTextField>
                     </div>
                     <div class="form-group">
-                        <MudTextField T="string" For="@(() => product.Description)" Label="Description" Variant="Variant.Outlined" Text="@product.Model" Class="m-3" Lines="3" />
+                        <MudTextField T="string" @bind-Value="product.Description" For="@(() => product.Description)" Label="Description" Variant="Variant.Outlined" Class="m-3" Lines="3" />
                     </div>
                     <div class="form-group">
                         @*                <InputNumber @bind-Value="product.Price" class="form-control" />

@@ -8,8 +8,9 @@ namespace Test.Client.Interfaces
         Task<List<Product>> GetAllProduct();
         Task<Product> GetProductById(string id);
         Task <AppResult> DeleteProduct(string id);
-         Task <AppResult> AddProduct(Product product);
+        Task <AppResult> AddProduct(Product product);
         Task <AppResult> UpdateProduct(Product product);
-                   
+        Task<byte[]> ExportAllToExcel();
+        Task<byte[]> ExportAllToPdf();
     }
 }

@@ -13,7 +13,6 @@ namespace Test.Server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
     public class ProductsController : ControllerBase
     {
         private readonly TestServerContext _context;
@@ -34,6 +33,14 @@ namespace Test.Server.Controllers
             var ProducList = _context.Product.Where(x => x.Name.ToLower()== x.Name.ToLower()).ToList();
             return Ok(ProducList);
 
+        }
+
+        // GET: api/Products
+        [Route("ExportProducts")]
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<Product>>> ExportAllProducts()
+        {
+            return Ok();
         }
 
         // GET: api/Products/5
