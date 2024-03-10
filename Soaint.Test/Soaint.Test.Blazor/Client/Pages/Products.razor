@@ -1,0 +1,56 @@
+@page "/products"
+@using Soaint.Test.Blazor.Client.Services
+@inject IProductService ProductService
+@inject NavigationManager Navigation
+@attribute [Authorize]
+
+<PageTitle>Products</PageTitle>
+
+<AuthorizeView>
+    <Authorized>
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Modelo</th>
+                <th>Nombre</th>
+                <th>Descripcion</th>
+                <th>Precio</th>
+                <th>
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (var item in ProductService.Products)
+            {
+                <tr>
+                    <td>@item.Model.Description</td>
+                    <td>@item.Name</td>
+                    <td>@item.Description</td>
+                    <td>@item.UnitPrice</td>
+                    <td>
+                        <button class="btn btn-primary" @onclick="(() => ShowProduct(item.Id))"><i class="oi oi-pencil"></i></button>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+        <button class="btn btn-primary" @onclick="CreateNewProduct">Create New Product</button>
+    </Authorized>
+    <NotAuthorized>
+        <span> No se encuentra autorizado</span>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await ProductService.GetAll();
+    }
+
+    void ShowProduct(int id)
+        => Navigation.NavigateTo($"product/{id}");
+
+    void CreateNewProduct()
+        => Navigation.NavigateTo("product");
+
+}

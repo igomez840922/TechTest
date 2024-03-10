@@ -10,7 +10,6 @@ Los mismos deben incluir los siguientes campos
 - Una Foto (obligatorio)
 
 - En una vista principal donde muestre todos los productos del sistema, y posibilidad de Agregar Nuevo, Editar, Eliminar (CRUD completo)
-- Posibilidad de Exportar via Pdf o Excel
 
 Requerimientos:
 1- Utilizar Entity Framework Core para manejo de BD(SQL o SQL Express)
@@ -18,4 +17,3 @@ Requerimientos:
 Utilizar Identity.
 3- Manejo de Seguridad de APIs, preferiblemente JWT
 4 - Manejo de excepciones generales
-5- Usar en la UI MudBlazor si lo conoce. (Opcional) 
