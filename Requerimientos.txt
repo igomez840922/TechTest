@@ -1,4 +1,3 @@
-Prueba Técnica, usando .net core 6, blazor WASM
 
 Crear un sistema de Registro de Productos:
 Los mismos deben incluir los siguientes campos
