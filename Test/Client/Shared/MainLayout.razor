@@ -2,15 +2,18 @@
 
 <div class="page">
     <div class="sidebar">
+        <MudThemeProvider />
+        <MudDialogProvider />
+        <MudSnackbarProvider />
         <NavMenu />
     </div>
 
     <main>
         <div class="top-row px-4">
-            <a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>
+            <LoginDisplay />
         </div>
 
-        <article class="content px-4">
+        <article class="content px-4 bg-light">
             @Body
         </article>
     </main>
