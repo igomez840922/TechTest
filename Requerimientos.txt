@@ -12,9 +12,9 @@ Los mismos deben incluir los siguientes campos
 - Posibilidad de Exportar via Pdf o Excel
 
 Requerimientos:
-1- Utilizar Entity Framework Core para manejo de BD(SQL o SQL Express)
+1- Utilizar Entity Framework Core para manejo de BD(SQL o SQL Express) (obligatorio)
 2- Autenticacion y Autorization (Login y Password) para entrar a la app.
-Utilizar Identity.
-3- Manejo de Seguridad de APIs, preferiblemente JWT
-4 - Manejo de excepciones generales
+Utilizar Identity. (obligatorio)
+3- Manejo de Seguridad de APIs, preferiblemente JWT (obligatorio)
+4 - Manejo de excepciones generales (obligatorio)
 5- Usar en la UI MudBlazor si lo conoce. (Opcional) 
